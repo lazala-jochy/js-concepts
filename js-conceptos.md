@@ -2,6 +2,65 @@
 
 Documento de referencia para estudiar fundamentos, funcionamiento interno, estructuras, asincronía, navegador y temas avanzados.
 
+## Tabla de contenidos
+
+### [FUNDAMENTOS](#fundamentos)
+
+- [Variables (`var`, `let`, `const`)](#variables-var-let-const)
+- [Tipos de datos](#tipos-de-datos)
+- [Operadores](#operadores)
+- [Condicionales (`if`, `else`, `switch`)](#condicionales-if-else-switch)
+- [Bucles (`for`, `while`, `do while`)](#bucles-for-while-do-while)
+- [Funciones (declaración, expresión, arrow)](#funciones-declaración-expresión-arrow)
+
+### [FUNCIONAMIENTO INTERNO](#funcionamiento-interno)
+
+- [Scope (global, local, block)](#scope-global-local-block)
+- [Hoisting](#hoisting)
+- [Closures](#closures)
+- [Call Stack](#call-stack)
+- [Event Loop](#event-loop)
+- [Execution Context](#execution-context)
+- [Memory Heap](#memory-heap)
+
+### [ESTRUCTURAS Y MÉTODOS](#estructuras-y-métodos)
+
+- [Objetos](#objetos)
+- [Arrays](#arrays)
+- [Destructuring](#destructuring)
+- [Spread / Rest](#spread--rest)
+- [Métodos de arrays (`map`, `filter`, `reduce`, `forEach`)](#métodos-de-arrays-map-filter-reduce-foreach)
+- [Métodos de objetos (`Object.keys`, `Object.values`, etc.)](#métodos-de-objetos-objectkeys-objectvalues-etc)
+
+### [ASINCRONÍA](#asincronía)
+
+- [Callbacks](#callbacks)
+- [Promises](#promises)
+- [`async` / `await`](#async--await)
+- [Manejo de errores (`try` / `catch`)](#manejo-de-errores-try--catch)
+- [`Promise.all`](#promiseall)
+- [`Promise.allSettled`](#promiseallsettled)
+- [`Promise.race`](#promiserace)
+
+### [DOM Y NAVEGADOR](#dom-y-navegador)
+
+- [DOM manipulation](#dom-manipulation)
+- [Event listeners](#event-listeners)
+- [Event bubbling / capturing](#event-bubbling--capturing)
+- [Fetch API](#fetch-api)
+- [`LocalStorage` / `SessionStorage`](#localstorage--sessionstorage)
+
+### [JAVASCRIPT AVANZADO](#javascript-avanzado)
+
+- [`this`](#this)
+- [Prototipos](#prototipos)
+- [Herencia prototipal](#herencia-prototipal)
+- [Clases (`class`)](#clases-class)
+- [Encapsulación](#encapsulación)
+- [Inmutabilidad](#inmutabilidad)
+- [Currying](#currying)
+- [Funciones puras](#funciones-puras)
+
 ---
 
 ## FUNDAMENTOS
