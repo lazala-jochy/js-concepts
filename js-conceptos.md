@@ -731,28 +731,153 @@ sessionStorage.setItem("tabId", "123");
 
 ### `this`
 
-El valor de **`this`** lo fija la **forma de invocación**:
+El valor de **`this`** no depende de **dónde** se define la función, sino de **cómo** se llama (invoca).
 
-- **Método** de objeto: suele ser el **objeto base** de la llamada.
-- **Función suelta** en modo no estricto (navegador): a menudo **`window`**.
-- **`call` / `apply` / `bind`**: fijan `this` explícitamente.
-- **`new`**: `this` es la instancia nueva.
-- **Arrow functions**: **`this` léxico** del entorno donde se definieron (no tienen `this` propio).
+👉 **Regla principal:**
 
-En **modo estricto**, una función suelta puede tener **`undefined`** como `this` (no el objeto global).
+`this` se determina en **tiempo de ejecución** según la forma de invocación.
 
-**Ejemplo**
+🧭 **Casos principales**
+
+**1. 🧱 Método de objeto**
+
+Cuando una función se llama como método de un objeto:
 
 ```js
 const obj = {
-  x: 1,
+  x: 10,
+  getX() {
+    return this.x;
+  },
+};
+
+obj.getX(); // 10
+```
+
+- ✔ `this` → el objeto (`obj`)
+
+**2. 🌍 Función suelta (no estricta)**
+
+```js
+function mostrarThis() {
+  return this;
+}
+
+mostrarThis(); // window (en navegador)
+```
+
+- ✔ `this` → objeto global (`window` en navegador)
+
+**3. ⚠️ Función suelta en modo estricto**
+
+```js
+"use strict";
+
+function mostrarThis() {
+  return this;
+}
+
+mostrarThis(); // undefined
+```
+
+- ✔ `this` → `undefined`
+- 👉 Más seguro, evita errores silenciosos
+
+**4. 🎯 `call`, `apply`, `bind` (`this` explícito)**
+
+```js
+function saludar() {
+  return `Hola ${this.nombre}`;
+}
+
+const persona = { nombre: "Jochy" };
+
+saludar.call(persona); // "Hola Jochy"
+saludar.apply(persona); // "Hola Jochy"
+
+const nueva = saludar.bind(persona);
+nueva(); // "Hola Jochy"
+```
+
+- ✔ `this` → lo que tú definas manualmente
+
+**5. 🆕 Con `new` (constructor)**
+
+```js
+function Persona(nombre) {
+  this.nombre = nombre;
+}
+
+const p = new Persona("Jochy");
+p.nombre; // "Jochy"
+```
+
+- ✔ `this` → nueva instancia creada
+
+**6. 🏹 Arrow functions (`this` léxico)**
+
+Las arrow functions **no** tienen su propio `this`.
+
+Toman el `this` del contexto donde fueron **creadas**.
+
+```js
+const obj = {
+  x: 10,
   regular() {
     return this.x;
   },
-  arrow: () => this?.x, // léxico: this del ámbito exterior (p. ej. undefined en módulo)
+  arrow: () => this?.x,
 };
-obj.regular(); // 1
+
+obj.regular(); // 10
+obj.arrow(); // undefined (depende del contexto exterior)
 ```
+
+- 👉 `this` en arrow **no** es `obj`, sino el exterior (ej: `window` o `undefined`)
+
+**7. 🔄 Método extraído (cambio de contexto)**
+
+```js
+const obj = {
+  x: 5,
+  getX() {
+    return this.x;
+  },
+};
+
+const fn = obj.getX;
+fn(); // undefined o window.x
+```
+
+- ❌ Se pierde el contexto
+- 👉 ya no se llama como método de `obj`
+
+**8. 🧠 Solución: `bind` para mantener `this`**
+
+```js
+const obj = {
+  x: 5,
+  getX() {
+    return this.x;
+  },
+};
+
+const fn = obj.getX.bind(obj);
+fn(); // 5
+```
+
+- ✔ `this` queda fijado correctamente
+
+🎯 **Resumen rápido**
+
+| Cómo se llama | Valor de `this` |
+| ------------- | --------------- |
+| `obj.metodo()` | `obj` |
+| función normal | `window` / `undefined` (strict) |
+| `call`/`apply`/`bind` | el que tú pases |
+| `new` | nueva instancia |
+| arrow function | `this` del entorno |
+| método extraído | se pierde el contexto |
 
 ---
 
@@ -846,11 +971,9 @@ const nuevo = { ...estado, items: [...estado.items, 3] };
 
 ### Currying
 
-**Currying** es transformar una función que recibe **varios argumentos a la vez** en una **cadena de funciones** que reciben **un argumento cada una**: de `f(a, b, c)` a `f(a)(b)(c)`. Eso permite **aplicar argumentos poco a poco** (*partial application*) y reutilizar las funciones intermedias.
+**¿Qué es currying?** Es convertir una función que recibe **varios argumentos a la vez** en una **serie de funciones** que reciben **un argumento a la vez**.
 
-**Versión normal vs currificada**
-
-En lugar de:
+👉 **En lugar de esto:**
 
 ```js
 function suma(a, b) {
@@ -858,23 +981,27 @@ function suma(a, b) {
 }
 ```
 
-Versión currificada:
+👉 **Haces esto:**
 
 ```js
 const suma = (a) => (b) => a + b;
 ```
 
-**Qué devuelve cada paso**
+**¿Qué pasa con `suma(10)`?**
 
-- `suma(10)` **no** devuelve un número: devuelve **otra función** `(b) => 10 + b`.
-- Al guardar `const masDiez = suma(10)`, `masDiez` es esa función parcialmente aplicada.
-- `masDiez(5)` → `15` (internamente `10 + 5`).
+- No devuelve un número.
+- Devuelve **otra función**.
 
-**Idea clave**
+```js
+const masDiez = suma(10);
+// masDiez es equivalente a: (b) => 10 + b
 
-“**Guardar un valor ahora, usarlo después**”: el primer argumento queda cerrado en el closure; los siguientes se pasan en llamadas posteriores.
+masDiez(5); // 15  → internamente: 10 + 5
+```
 
-**Ejemplo práctico (reutilización con un valor fijo)**
+🎯 **Idea clave:** guardar un valor **ahora** y usarlo **después** (*partial application*).
+
+**Ejemplo útil — reutilizar lógica con un valor fijo:**
 
 ```js
 const aplicarDescuento = (descuento) => (precio) =>
@@ -886,47 +1013,44 @@ descuento20(100); // 80
 descuento20(200); // 160
 ```
 
-Aquí reutilizas la misma lógica con el descuento **0.2** ya fijado.
+🧱 **Por qué sirve:** reutilización, código más flexible, aplicar argumentos poco a poco, muy usado en estilo funcional (React, librerías FP).
 
-**Por qué es útil**
+⚠️ **Regla fácil:** cada función recibe **un solo argumento** y devuelve otra función hasta “terminar”.
 
-- **Reutilización** de funciones configuradas.
-- Código más **composable** y flexible.
-- Encaja con **aplicación parcial** y estilos **funcionales** (p. ej. en React o librerías FP).
-
-**Regla mnemotécnica**
-
-Cada función recibe **un** argumento y devuelve otra función hasta que ya no queden argumentos por aplicar.
-
-**Mini resumen**
-
-| Estilo   | Forma      |
-| -------- | ---------- |
-| Normal   | `f(a, b)`  |
-| Currying | `f(a)(b)`  |
-
-Divide la ejecución en **pasos** y permite fijar argumentos de forma incremental.
+🧠 **Mini resumen:** normal `f(a, b)` → currying `f(a)(b)`; divide la ejecución en pasos.
 
 ---
 
 ### Funciones puras
 
-Una **función pura** cumple dos condiciones:
+Una **función pura** es una función que se comporta de forma **totalmente predecible**.
 
-1. **Determinismo:** con los **mismos argumentos**, siempre devuelve el **mismo** resultado (misma entrada → misma salida).
-2. **Sin efectos secundarios observables:** no altera el mundo exterior ni depende de estado mutable externo para su resultado.
+Cumple **dos reglas principales**:
 
-**Qué suele considerarse efecto lateral**
+**1. Determinismo**
 
-La función **no** debería, en la práctica del estilo funcional estricto:
+Si le das los mismos argumentos, **siempre** devuelve el mismo resultado.
 
-- **Mutar** variables o propiedades fuera de su ámbito (estado global, objetos compartidos).
-- Realizar **I/O**: peticiones de red (`fetch`), lectura/escritura de archivos, **DOM**.
-- **Escribir en consola** u otros canales de salida (en código “puro” estricto también cuenta como observable).
+- misma entrada → misma salida
+
+**2. Sin efectos secundarios**
+
+No modifica nada fuera de ella ni depende de cosas externas (para calcular su resultado).
+
+⚠️ **¿Qué se considera un efecto secundario?**
+
+En programación funcional, una función deja de ser pura si:
+
+- 🔄 Modifica variables externas (estado global o compartido)
+- 🌐 Hace peticiones (API, base de datos, etc.)
+- 📂 Lee o escribe archivos
+- 🖥️ Manipula el DOM
+- 🖨️ Imprime en consola (`console.log`)
+- ⏰ Depende del tiempo (`Date`, reloj del sistema)
 
 *(En proyectos reales muchas funciones son intencionalmente impuras; lo importante es **saber** cuándo lo son y aislarlas.)*
 
-**Ejemplo de función pura**
+✅ **Ejemplo de función pura**
 
 ```js
 function cuadrado(n) {
@@ -934,23 +1058,26 @@ function cuadrado(n) {
 }
 ```
 
-- `cuadrado(2)` siempre es `4`.
-- Solo depende de `n`, no de variables externas.
-- No modifica nada fuera.
+- ✔ Siempre devuelve lo mismo para el mismo `n`
+- ✔ No usa variables externas
+- ✔ No modifica nada fuera
 
-**Ejemplo de función impura**
+❌ **Ejemplo de función impura**
 
 ```js
 let contador = 0;
 
 function incrementar() {
-  contador++; // efecto lateral: muta estado externo
+  contador++;
 }
 ```
 
-**Problemas típicos de lo impuro:** el resultado o el comportamiento **dependen del historial** y del estado externo; es **menos predecible** y suele ser **más difícil de testear** de forma aislada.
+- ❌ Modifica una variable externa
+- ❌ Depende del estado previo
 
-**Otro ejemplo puro**
+⚖️ **Otro ejemplo claro**
+
+✔ **Pura**
 
 ```js
 function suma(a, b) {
@@ -958,9 +1085,9 @@ function suma(a, b) {
 }
 ```
 
-`suma(2, 3)` siempre es `5`.
+👉 `suma(2, 3)` siempre será `5`.
 
-**Ejemplo impuro habitual**
+❌ **Impura**
 
 ```js
 function obtenerHora() {
@@ -968,25 +1095,28 @@ function obtenerHora() {
 }
 ```
 
-No es pura: cada llamada puede devolver un valor **distinto** porque depende del **reloj** (entrada implícita del entorno).
+- ❌ Depende del tiempo (estado externo)
+- ❌ Cada llamada puede devolver algo diferente
 
-**Por qué son importantes las funciones puras**
+🎯 **¿Por qué son importantes?**
 
-- Más **fáciles de testear** (sin montar estado global ni mocks de red).
-- Más **predecibles** y con menos sorpresas al componer código.
-- Menos superficie para **bugs** por efectos encadenados.
-- Más **reutilizables** en distintos contextos.
+- 🧪 Más fáciles de testear (no necesitas mocks ni estado global)
+- 🔍 Más fáciles de entender
+- 🔁 Más reutilizables
+- 🐛 Menos bugs inesperados
+- 🧩 Ideales para componer funciones
 
-**Regla mnemotécnica**
+🧠 **Regla fácil de recordar**
 
-Piensa en una **calculadora:** mismos datos de entrada → mismo resultado, sin tocar nada fuera de la función.
+Piensa en una **calculadora**: le das números → te da un resultado → no cambia nada más.
 
-**Resumen**
+📊 **Resumen rápido**
 
-| Pura | Impura |
-| ---- | ------ |
-| Solo argumentos → resultado | Puede leer o mutar estado externo / tiempo / I/O |
-| Misma entrada, misma salida | Misma “llamada” puede variar según el contexto |
+| Función pura | Función impura |
+| ------------ | -------------- |
+| Solo usa sus argumentos | Usa estado externo |
+| Misma entrada → misma salida | Puede cambiar el resultado |
+| Sin efectos secundarios | Tiene efectos secundarios |
 
 ---
 
