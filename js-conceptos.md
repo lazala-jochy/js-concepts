@@ -1,6 +1,8 @@
 # Guía de conceptos JavaScript
 
-Documento de referencia para estudiar fundamentos, funcionamiento interno, estructuras, asincronía, navegador y temas avanzados.
+Documento de referencia para estudiar **fundamentos**, **funcionamiento interno**, **estructuras**, **asincronía**, **navegador** y **temas avanzados**. Pensado para consulta rápida y estudio profundo.
+
+---
 
 ## Tabla de contenidos
 
@@ -67,11 +69,16 @@ Documento de referencia para estudiar fundamentos, funcionamiento interno, estru
 
 ### Variables (`var`, `let`, `const`)
 
-- **`var`**: Declara una variable con **ámbito de función** (o global). Se puede redeclarar y reasignar. Existe **hoisting** y la inicialización queda en `undefined` hasta la línea de asignación.
-- **`let`**: Declara una variable con **ámbito de bloque**. No se puede redeclarar en el mismo bloque; sí reasignar. No se accede antes de la declaración (TDZ: *temporal dead zone*).
-- **`const`**: Declara una **constante de enlace**: no se puede reasignar el identificador. También es de **bloque**. El valor puede ser mutable si es un objeto o array (solo el enlace es constante).
+| Declaración | Ámbito | Redeclaración | Reasignación | Comportamiento especial |
+|-------------|--------|---------------|--------------|-------------------------|
+| **`var`** | Función o global | Sí | Sí | **Hoisting**: existe como `undefined` hasta la asignación |
+| **`let`** | Bloque | No (en el mismo bloque) | Sí | **TDZ** (*temporal dead zone*): no accesible antes de la línea de declaración |
+| **`const`** | Bloque | No | No (del **enlace**) | Constante de **enlace**: el identificador no se reasigna; objetos/arrays pueden **mutarse** por dentro |
 
-**Ejemplo:**
+- **`var`**: ámbito de **función** (o global), no de bloque.
+- **`let` / `const`**: ámbito de **bloque** `{}`.
+
+**Ejemplo**
 
 ```js
 var x = 1;
@@ -82,14 +89,30 @@ y = 20;
 z.n = 30; // válido: mutar el objeto
 ```
 
+**Notas clave**
+
+- Con `const`, solo es constante la **referencia**, no necesariamente el contenido interno de objetos o arrays.
+
+---
+
 ### Tipos de datos
 
-JavaScript es **dinámicamente tipado**. Los tipos primitivos son: **`undefined`**, **`null`**, **`boolean`**, **`number`**, **`bigint`**, **`string`**, **`symbol`**. Todo lo demás es **objeto** (incluidos arrays, funciones, fechas, etc.).
+JavaScript es **dinámicamente tipado**: el tipo se asocia al valor, no a la variable.
 
-- **Primitivos**: se copian por valor; inmutables en el sentido de que no puedes “cambiar” el primitivo en sitio (reasignas otra cosa).
-- **Referencia**: objetos comparten identidad; comparar con `===` compara la referencia, no el contenido profundo.
+**Tipos primitivos**
 
-**Ejemplo:**
+- `undefined`, `null`, `boolean`, `number`, `bigint`, `string`, `symbol`
+
+**Todo lo demás es objeto**
+
+- Incluye arrays, funciones, fechas, etc.
+
+**Comportamiento**
+
+- **Primitivos**: se **copian por valor**; son **inmutables** en el sentido de que no “modificas” el valor en el sitio (reasignas otra cosa).
+- **Referencia** (objetos): comparten **identidad**; `===` compara la **referencia**, no una igualdad profunda del contenido.
+
+**Ejemplo**
 
 ```js
 typeof 42; // "number"
@@ -99,16 +122,25 @@ const b = a;
 a === b; // true (misma referencia)
 ```
 
+**Notas clave**
+
+- `typeof null` es `"object"` por razones históricas del lenguaje; para comprobar `null` usa comparación explícita (`value === null`).
+
+---
+
 ### Operadores
 
 - **Aritméticos**: `+`, `-`, `*`, `/`, `%`, `**` (exponenciación).
 - **Asignación**: `=`, `+=`, `-=`, etc.
-- **Comparación**: `==` / `!=` (coerción), `===` / `!==` (estricto, recomendado).
-- **Lógicos**: `&&`, `||`, `??` (nullish coalescing: solo `null`/`undefined`), `!`.
-- **Incremento/decremento**: `++`, `--` (prefijo y sufijo cambian el valor devuelto).
-- **Otros**: `typeof`, `instanceof`, operador ternario `cond ? a : b`, optional chaining `?.`, encadenamiento nullish.
+- **Comparación**
+  - `==` / `!=`: con **coerción** de tipos.
+  - `===` / `!==`: **estrictos** (sin coerción); uso **recomendado** en código moderno.
+- **Lógicos**: `&&`, `||`, `!`.
+- **Nullish coalescing**: `??` — el valor de la derecha solo se usa si la izquierda es **`null`** o **`undefined`** (no trata `0` ni `""` como “ausencia”, a diferencia de `||` en muchos casos).
+- **Incremento / decremento**: `++`, `--` (prefijo y sufijo cambian el **valor devuelto** en la expresión).
+- **Otros útiles**: `typeof`, `instanceof`, ternario `cond ? a : b`, optional chaining `?.`
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 const edad = 18;
@@ -117,12 +149,25 @@ const nombre = null;
 const display = nombre ?? "anónimo"; // solo null/undefined usan el default
 ```
 
+**Errores comunes**
+
+- `==` puede producir comparaciones sorprendentes por coerción; prefiere `===` salvo que tengas un motivo muy claro.
+
+---
+
 ### Condicionales (`if`, `else`, `switch`)
 
-- **`if / else if / else`**: ejecuta bloques según condiciones booleanas. La condición se convierte a booleano de forma implícita salvo que uses comparaciones explícitas.
-- **`switch`**: compara una expresión con varios `case` (normalmente con **strict equality** tras `switch` en JS clásico). Importante: **`break`** para no “caer” al siguiente `case`; `default` para el resto.
+**`if` / `else if` / `else`**
 
-**Ejemplo:**
+- Ejecuta bloques según condiciones; la condición se **coerciona a booleano** de forma implícita si no usas comparaciones explícitas.
+
+**`switch`**
+
+- Compara una expresión con varios `case` (en la práctica habitual de JS, equivalencia **estricta** respecto al valor del `switch`).
+- Usa **`break`** para no **caer** (*fall-through*) al siguiente `case`.
+- **`default`**: rama cuando no coincide ningún `case`.
+
+**Ejemplo**
 
 ```js
 const rol = "admin";
@@ -143,15 +188,24 @@ switch (rol) {
 }
 ```
 
+**Notas clave**
+
+- Sin `break`, el flujo continúa en el siguiente `case` (a veces es intencional, pero suele ser fuente de bugs).
+
+---
+
 ### Bucles (`for`, `while`, `do while`)
 
-- **`for`**: inicialización, condición y actualización en una línea; ideal cuando conoces o controlas el número de iteraciones.
-- **`while`**: evalúa la condición **antes** de cada iteración; puede no ejecutarse nunca.
+- **`for`**: inicialización, condición y actualización en una sola cabecera; adecuado cuando controlas o conoces bien el número de iteraciones.
+- **`while`**: evalúa la condición **antes** de cada iteración; el cuerpo puede **no ejecutarse nunca**.
 - **`do...while`**: ejecuta **al menos una vez** y luego evalúa la condición.
 
-También existen `for...of` (iterables, valores) y `for...in` (claves enumerables de objetos; cuidado con propiedades heredadas).
+**Variantes de iteración**
 
-**Ejemplo:**
+- **`for...of`**: sobre **iterables** (valores).
+- **`for...in`**: sobre **claves enumerables** de objetos; **cuidado** con propiedades **heredadas** de la cadena de prototipos (filtra con `hasOwn` / `Object.hasOwn` cuando corresponda).
+
+**Ejemplo**
 
 ```js
 for (let i = 0; i < 3; i++) console.log(i);
@@ -169,13 +223,15 @@ do {
 for (const v of [10, 20]) console.log(v);
 ```
 
+---
+
 ### Funciones (declaración, expresión, arrow)
 
-- **Declaración de función**: `function nombre() {}` — tiene hoisting completo (el nombre está disponible en todo el ámbito de la función).
-- **Expresión de función**: `const f = function() {}` — la variable obedece a `let`/`const` (no usar antes de declarar).
-- **Arrow functions**: `const f = () => {}` — no tienen `this` propio ni `arguments` de función clásica; útiles para callbacks cortos y lexican `this` del exterior.
+- **Declaración**: `function nombre() {}` — **hoisting** completo del nombre: invocable en todo su ámbito de función antes de la línea textual.
+- **Expresión**: `const f = function() {}` — la variable sigue las reglas de `let`/`const` (no uses antes de declarar).
+- **Arrow**: `const f = () => {}` — **no** tiene `this` propio ni el objeto **`arguments`** de funciones clásicas; **lexical** `this` del entorno donde se definió; muy usadas en callbacks cortos.
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 function suma(a, b) {
@@ -189,17 +245,21 @@ const resta = function (a, b) {
 const mult = (a, b) => a * b;
 ```
 
+**Notas clave**
+
+- No uses arrow functions como métodos de objeto cuando necesites que `this` sea la instancia (salvo que quieras explícitamente el `this` léxico exterior).
+
 ---
 
 ## FUNCIONAMIENTO INTERNO
 
 ### Scope (global, local, block)
 
-- **Global**: variables accesibles desde cualquier parte del programa (p. ej. propiedades de `globalThis` / `window` en navegador).
-- **Local (de función)**: variables declaradas dentro de una función; solo visibles ahí (`var` está ligado a la función).
-- **De bloque**: `let` y `const` (y `class`) limitados al par de llaves `{}` donde se declaran.
+- **Global**: accesible desde casi todo el programa (p. ej. propiedades de `globalThis` / `window` en navegador).
+- **Local (función)**: variables dentro de una función; **`var`** queda ligado a la **función**, no al bloque.
+- **Bloque**: `let`, `const` y `class` limitados al par de llaves `{}` donde se declaran.
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 const enGlobal = 1;
@@ -212,11 +272,17 @@ function demo() {
 }
 ```
 
+---
+
 ### Hoisting
 
-El motor “eleva” declaraciones a la cima de su ámbito **antes** de ejecutar el código. Las **declaraciones de función** completas se pueden invocar antes en el código; **`var`** se eleva como `undefined`; **`let`/`const`** elevan el “binding” pero entran en **TDZ** hasta la línea de declaración.
+El motor **reorganiza** mentalmente el código: las **declaraciones** se procesan antes de la ejecución línea a línea en su ámbito.
 
-**Ejemplo:**
+- **`function` declarada**: se puede invocar **antes** en el código (identificador y cuerpo disponibles en el ámbito).
+- **`var`**: el identificador existe desde el inicio del ámbito con valor **`undefined`** hasta la asignación.
+- **`let` / `const`**: el “binding” existe pero entra en **TDZ** hasta la línea de declaración (acceso previo → error).
+
+**Ejemplo**
 
 ```js
 console.log(hoistedVar); // undefined (var existe, sin valor aún)
@@ -228,11 +294,13 @@ function antes() {
 }
 ```
 
+---
+
 ### Closures
 
-Una **closure** es una función que **recuerda** el entorno léxico donde se creó: sigue teniendo acceso a variables externas aunque la función externa ya haya terminado. Permite factories, módulos y estado privado simulado.
+Una **closure** es una función que **conserva** el **entorno léxico** donde se creó: sigue accediendo a variables externas aunque la función externa ya haya terminado. Sirve para **factories**, **módulos** y **estado privado** simulado.
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 function crearContador() {
@@ -244,11 +312,13 @@ c(); // 1
 c(); // 2
 ```
 
+---
+
 ### Call Stack
 
-Pila de **frames** de ejecución: cada llamada a función apila un frame; al terminar, se desapila. Una llamada recursiva sin límite puede desbordar la pila (**stack overflow**). JavaScript en un solo hilo usa **un** call stack principal para ese hilo.
+Pila de **frames** de ejecución: cada llamada a función **apila** un frame; al retornar, se **desapila**. Recursión sin límite puede provocar **stack overflow**. JavaScript en un hilo usa **un** call stack principal para ese hilo.
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 function a() {
@@ -261,11 +331,13 @@ function c() {}
 a(); // call stack: a → b → c, luego se vacía al volver
 ```
 
+---
+
 ### Event Loop
 
-Mecanismo que coordina el **call stack**, la **cola de tareas** (*task queue / macrotasks*) y las **microtareas** (p. ej. promesas). Cuando el stack está vacío, el loop toma la siguiente tarea y la ejecuta. Las microtareas se vacían antes del siguiente macrotask.
+Coordina el **call stack**, la **cola de tareas** (*macrotasks*, p. ej. `setTimeout`) y las **microtareas** (p. ej. callbacks de **promesas**). Cuando el stack está vacío, el loop toma la siguiente tarea. Las **microtareas** se drenan **antes** del siguiente **macrotask**.
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 console.log("A");
@@ -275,11 +347,13 @@ console.log("D");
 // Orden típico: A, D, C, B (microtarea antes que el timeout macrotarea)
 ```
 
+---
+
 ### Execution Context
 
-Entorno en el que se ejecuta un fragmento de código: contiene el **this binding**, el **entorno léxico** (scope chain) y el estado de la función. Global y por cada invocación de función (y a veces global de `eval` en modo estricto, etc.).
+Entorno donde corre un fragmento de código: incluye el **binding de `this`**, el **entorno léxico** (cadena de scopes) y el estado de la función. Hay contexto **global** y uno por **invocación** de función (y casos especiales como `eval` según modo estricto).
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 const o = {
@@ -291,11 +365,13 @@ const o = {
 o.m(); // 1
 ```
 
+---
+
 ### Memory Heap
 
-Región donde viven **objetos** y datos dinámicos (referenciados desde el stack). El **garbage collector** libera lo que ya no es alcanzable; los closures mantienen vivas las variables que capturan si la función sigue referenciada.
+Región donde residen **objetos** y datos dinámicos (referenciados desde el stack). El **garbage collector** libera lo **inalcanzable**. Las **closures** mantienen vivas las variables capturadas mientras la función interna siga referenciada.
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 function f() {
@@ -311,9 +387,9 @@ const g = f(); // el array sigue en el heap mientras exista g
 
 ### Objetos
 
-Colecciones de **pares clave-valor**. Las claves suelen ser strings o symbols; los valores pueden ser cualquier tipo. Acceso con `obj.prop` o `obj["prop"]`.
+Colecciones de **pares clave-valor**. Claves habituales: **strings** o **symbols**. Valores: cualquier tipo. Acceso: `obj.prop` o `obj["prop"]`.
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 const user = { name: "Ana", edad: 30 };
@@ -321,11 +397,13 @@ user.name;
 user["edad"];
 ```
 
+---
+
 ### Arrays
 
-Lista ordenada indexada numéricamente; es un objeto especializado con `.length` y métodos de iteración. Índices desde `0`.
+Lista ordenada con índices numéricos; objeto especializado con **`.length`** y métodos de iteración. Primer índice: **0**.
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 const nums = [10, 20, 30];
@@ -333,11 +411,15 @@ nums[0]; // 10
 nums.push(40);
 ```
 
+---
+
 ### Destructuring
 
-Sintaxis para **extraer** valores de arrays u objetos en variables:
+Sintaxis para **extraer** valores de arrays u objetos en variables enlazadas.
 
-**Ejemplo:**
+- Soporta **valores por defecto** y **renombrado** en objetos (`{ edad: años }`).
+
+**Ejemplo**
 
 ```js
 const arr = [1, 2, 3];
@@ -350,14 +432,14 @@ const [x = 0] = [];
 const { nick = "guest" } = {};
 ```
 
-Permite valores por defecto y renombrado (`{ name: n }`).
+---
 
 ### Spread / Rest
 
-- **Spread** (`...`): “expande” un iterable u objeto en otro contexto (array literal, argumentos, objeto literal).
-- **Rest** (`...args`): agrupa el resto de elementos en un array (parámetros o destructuring).
+- **Spread (`...`)**: **expande** un iterable u objeto (según contexto: literal de array, argumentos, literal de objeto).
+- **Rest (`...args`)**: **agrupa** el resto en un array (rest parameters o rest en destructuring).
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 const copia = [...[1, 2], 3];
@@ -367,14 +449,16 @@ function suma(...nums) {
 const [primero, ...resto] = [1, 2, 3, 4];
 ```
 
+---
+
 ### Métodos de arrays (`map`, `filter`, `reduce`, `forEach`)
 
-- **`forEach`**: ejecuta una función por cada elemento; **no devuelve** un array útil (devuelve `undefined`); no se puede `break` como en un `for` clásico.
-- **`map`**: devuelve un **nuevo array** con la misma longitud, transformando cada elemento.
-- **`filter`**: devuelve un **nuevo array** con elementos que cumplen la condición.
-- **`reduce`**: reduce el array a **un solo valor** acumulando (con acumulador e índice opcional).
+- **`forEach`**: ejecuta una función por elemento; **no** devuelve un array útil (devuelve `undefined`); **no** equivale a `for` con `break`/`continue` de la misma forma.
+- **`map`**: nuevo array de la **misma longitud**, transformando cada elemento.
+- **`filter`**: nuevo array solo con elementos que **cumplen** la condición.
+- **`reduce`**: reduce a **un valor** acumulando (acumulador e índice opcionales).
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 const n = [1, 2, 3];
@@ -384,14 +468,20 @@ const pares = n.filter((x) => x % 2 === 0);
 const total = n.reduce((acc, x) => acc + x, 0);
 ```
 
+**Errores comunes**
+
+- Esperar un array nuevo de `forEach` o poder “cortar” la iteración como en un `for` clásico.
+
+---
+
 ### Métodos de objetos (`Object.keys`, `Object.values`, etc.)
 
-- **`Object.keys(obj)`**: array de claves **enumerables** propias.
+- **`Object.keys(obj)`**: array de claves **enumerables propias**.
 - **`Object.values(obj)`**: valores de esas propiedades.
 - **`Object.entries(obj)`**: pares `[clave, valor]`.
-- **`Object.assign`**, **`Object.freeze` / `seal` / `preventExtensions`**, **`Object.hasOwn`**, **`Object.fromEntries`**, etc., según necesidad.
+- Otras utilidades según necesidad: **`Object.assign`**, **`Object.freeze` / `seal` / `preventExtensions`**, **`Object.hasOwn`**, **`Object.fromEntries`**, etc.
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 const o = { a: 1, b: 2 };
@@ -410,9 +500,9 @@ Object.fromEntries([
 
 ### Callbacks
 
-Funciones pasadas para que se ejecuten **más tarde** (p. ej. al terminar I/O o un temporizador). El patrón callback puede llevar a **callback hell** si se anidan muchas operaciones.
+Funciones pasadas para ejecutarse **más tarde** (I/O, temporizadores, etc.). Muchos niveles anidados producen **callback hell** (código difícil de leer y mantener).
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 setTimeout(() => console.log("más tarde"), 1000);
@@ -423,11 +513,13 @@ function leerArchivo(ruta, callback) {
 }
 ```
 
+---
+
 ### Promises
 
-Objeto que representa un valor **futuro**: estados **pending**, **fulfilled** o **rejected**. Encadenamiento con `.then` / `.catch` / `.finally`; un `then` puede devolver otra promesa para secuencias.
+Representan un valor **futuro**. Estados: **pending**, **fulfilled**, **rejected**. Encadenamiento con **`.then` / `.catch` / `.finally`**; un `then` puede devolver otra promesa para secuencias.
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 const p = new Promise((resolve, reject) => {
@@ -438,11 +530,14 @@ p.then((v) => v * 2)
   .catch(console.error);
 ```
 
+---
+
 ### `async` / `await`
 
-`async` marca una función que **siempre** devuelve una promesa. `await` pausa la función `async` hasta que la promesa se resuelve (sin bloquear el hilo principal: el trabajo continúa vía microtareas).
+- **`async`**: la función **siempre** devuelve una **promesa**.
+- **`await`**: pausa la función `async` hasta la resolución de la promesa **sin bloquear el hilo principal** (el trabajo continúa vía **microtareas** y el event loop).
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 async function cargar() {
@@ -452,11 +547,17 @@ async function cargar() {
 cargar().then(console.log);
 ```
 
+---
+
 ### Manejo de errores (`try` / `catch`)
 
-`try` ejecuta código; `catch` captura excepciones; `finally` corre siempre. Con `async/await`, errores de promesas rechazadas se capturan con `try/catch` alrededor del `await`.
+- **`try`**: bloque a ejecutar.
+- **`catch`**: captura excepciones lanzadas.
+- **`finally`**: se ejecuta **siempre** (éxito o error).
 
-**Ejemplo:**
+Con **`async`/`await`**, los rechazos de promesas se capturan con **`try`/`catch`** alrededor del **`await`**.
+
+**Ejemplo**
 
 ```js
 try {
@@ -468,21 +569,28 @@ try {
 }
 ```
 
+---
+
 ### `Promise.all`
 
-Recibe un iterable de promesas; se cumple con un **array de resultados** en orden si **todas** cumplen; si **una** falla, rechaza con esa razón.
+Recibe un **iterable de promesas**:
 
-**Ejemplo:**
+- Si **todas** cumplen: resultado es un **array de valores** en **orden**.
+- Si **una** falla: rechazo con esa **razón** (no espera al resto para fallar).
+
+**Ejemplo**
 
 ```js
 Promise.all([Promise.resolve(1), Promise.resolve(2)]).then(console.log); // [1,2]
 ```
 
+---
+
 ### `Promise.allSettled`
 
-Espera a que **todas** terminen (éxito o fallo); devuelve un array de objetos `{ status, value | reason }`. Nunca rechaza por un solo fallo.
+Espera a que **todas** terminen (éxito o fallo). Devuelve un array de objetos `{ status, value | reason }`. **No** rechaza el agregado por un solo fallo.
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 Promise.allSettled([
@@ -491,11 +599,13 @@ Promise.allSettled([
 ]).then(console.log);
 ```
 
+---
+
 ### `Promise.race`
 
-Se resuelve o rechaza con el **primer** settled de las promesas dadas (útil para timeouts o “la primera que responda”).
+Se **resuelve** o **rechaza** con el **primer** settled entre las promesas dadas. Útil para **timeouts** o “la primera que responda”.
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 const rápida = Promise.resolve("A");
@@ -509,9 +619,15 @@ Promise.race([rápida, lenta]).then(console.log); // "A"
 
 ### DOM manipulation
 
-El **DOM** es la representación en árbol del HTML. Se puede **seleccionar** nodos (`querySelector`, `getElementById`, etc.), **crear** (`createElement`), **modificar** texto/atributos/clases, **insertar** (`appendChild`, `insertBefore`) y **eliminar** nodos.
+El **DOM** es el árbol del documento HTML. Operaciones típicas:
 
-**Ejemplo (navegador):**
+- **Seleccionar**: `querySelector`, `getElementById`, etc.
+- **Crear**: `createElement`
+- **Modificar**: texto, atributos, clases
+- **Insertar**: `appendChild`, `insertBefore`
+- **Eliminar** nodos
+
+**Ejemplo (navegador)**
 
 ```js
 const el = document.querySelector("#app");
@@ -520,11 +636,16 @@ p.textContent = "Hola";
 el?.appendChild(p);
 ```
 
+---
+
 ### Event listeners
 
-`addEventListener(evento, handler, opciones)` registra respuestas a eventos; `removeEventListener` requiere la **misma referencia** de función. Opciones: `once`, `passive`, `capture`.
+- **`addEventListener(evento, handler, opciones)`**: registra el manejador.
+- **`removeEventListener`**: requiere la **misma referencia** de función que en `addEventListener`.
 
-**Ejemplo (navegador):**
+**Opciones** (entre otras): `once`, `passive`, `capture`.
+
+**Ejemplo (navegador)**
 
 ```js
 const handler = () => console.log("click");
@@ -532,11 +653,19 @@ document.body.addEventListener("click", handler);
 document.body.removeEventListener("click", handler);
 ```
 
+---
+
 ### Event bubbling / capturing
 
-Los eventos atraviesan el DOM en **tres fases**: captura (de raíz a objetivo), objetivo, y **bubbling** (de objetivo a raíz). Por defecto los handlers escuchan en fase de bubbling; `capture: true` invierte el orden.
+Fases del evento en el DOM:
 
-**Ejemplo (navegador):** supón HTML `<div id="outer"><button id="inner"></button></div>`.
+1. **Capturing**: de la raíz hacia el objetivo.
+2. **Target**: el elemento objetivo.
+3. **Bubbling**: del objetivo hacia la raíz.
+
+Por defecto los handlers suelen registrarse en fase **bubbling**; **`capture: true`** invierte el orden de ejecución en la fase de captura.
+
+**Ejemplo (navegador)** — HTML: `<div id="outer"><button id="inner"></button></div>`.
 
 ```js
 document.getElementById("outer")?.addEventListener(
@@ -552,11 +681,16 @@ document.getElementById("outer")?.addEventListener(
 // Al hacer clic en #inner: primero capture en outer, luego el botón, luego bubbling en outer
 ```
 
+---
+
 ### Fetch API
 
-API basada en **promesas** para peticiones HTTP (`fetch(url, options)`). Respuesta inicial hay que leer con `.json()`, `.text()`, etc. Errores HTTP **no** rechazan la promesa por defecto; hay que comprobar `response.ok`.
+API **basada en promesas** para HTTP: `fetch(url, options)`.
 
-**Ejemplo (navegador):**
+- La **respuesta** hay que **consumir** con `.json()`, `.text()`, etc.
+- Los **códigos HTTP de error** (4xx, 5xx) **no** rechazan la promesa por defecto: comprueba **`response.ok`** (o el status) explícitamente.
+
+**Ejemplo (navegador)**
 
 ```js
 fetch("https://api.example.com/data")
@@ -568,11 +702,22 @@ fetch("https://api.example.com/data")
   .catch(console.error);
 ```
 
+**Errores comunes**
+
+- Asumir que `fetch` rechaza en 404/500; solo falla en problemas de red u otros errores de fetch.
+
+---
+
 ### `LocalStorage` / `SessionStorage`
 
-Almacenamiento clave-valor en el navegador (solo strings). **localStorage** persiste entre sesiones; **sessionStorage** por pestaña hasta cerrarla. Misma API; tamaño limitado y origen aislado (same-origin policy).
+Almacenamiento **clave-valor** en el navegador (**solo strings**).
 
-**Ejemplo (navegador):**
+- **`localStorage`**: persiste entre sesiones (mismo origen).
+- **`sessionStorage`**: por **pestaña** hasta cerrarla.
+
+Misma **API**; tamaño limitado; aislado por **origen** (*same-origin policy*).
+
+**Ejemplo (navegador)**
 
 ```js
 localStorage.setItem("theme", "dark");
@@ -586,9 +731,17 @@ sessionStorage.setItem("tabId", "123");
 
 ### `this`
 
-El valor de **`this`** depende de **cómo** se invoca la función: método de objeto (objeto base), función suelta en modo no estricto (`window` en navegador), `call`/`apply`/`bind`, constructor `new`, o arrow (léxico, no propio). En modo estricto, función suelta puede dar `undefined`.
+El valor de **`this`** lo fija la **forma de invocación**:
 
-**Ejemplo:**
+- **Método** de objeto: suele ser el **objeto base** de la llamada.
+- **Función suelta** en modo no estricto (navegador): a menudo **`window`**.
+- **`call` / `apply` / `bind`**: fijan `this` explícitamente.
+- **`new`**: `this` es la instancia nueva.
+- **Arrow functions**: **`this` léxico** del entorno donde se definieron (no tienen `this` propio).
+
+En **modo estricto**, una función suelta puede tener **`undefined`** como `this` (no el objeto global).
+
+**Ejemplo**
 
 ```js
 const obj = {
@@ -601,11 +754,13 @@ const obj = {
 obj.regular(); // 1
 ```
 
+---
+
 ### Prototipos
 
-Cada objeto puede enlazar a otro objeto como **prototipo** (`Object.getPrototypeOf`). La cadena de prototipos resuelve propiedades no encontradas en el objeto. Las funciones constructoras tienen `.prototype` usado al instanciar con `new`.
+Los objetos pueden enlazar a otro objeto como **prototipo** (`Object.getPrototypeOf`). La **cadena de prototipos** resuelve propiedades no encontradas en el objeto. Las **funciones constructoras** tienen **`.prototype`**, usado al instanciar con **`new`**.
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 const padre = { saluda() { return "hola"; } };
@@ -614,11 +769,13 @@ hijo.saluda(); // delega al prototipo
 Object.getPrototypeOf(hijo) === padre; // true
 ```
 
+---
+
 ### Herencia prototipal
 
-Reutilización mediante **delegación**: un objeto delega en su prototipo. `extends` en clases es azúcar sintáctico sobre esta cadena.
+Reutilización por **delegación**: un objeto delega en su prototipo. La sintaxis **`extends`** en clases es **azúcar** sobre esta mecánica.
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 const animal = { tipo: "animal" };
@@ -627,11 +784,13 @@ perro.ladra = () => "guau";
 perro.tipo; // hereda por la cadena de prototipos
 ```
 
+---
+
 ### Clases (`class`)
 
-Sintaxis declarativa para constructores y métodos; **no** es un nuevo modelo de herencia distinto del prototipal. Métodos van en el prototipo; campos de instancia pueden ir en el cuerpo de clase.
+Sintaxis declarativa para constructores y métodos. **No** introduce un modelo de herencia distinto del **prototipal**. Los métodos de instancia típicos van en el **prototipo**; los **campos de clase** pueden declararse en el cuerpo de la clase.
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 class User {
@@ -645,11 +804,18 @@ class User {
 new User("Ana").greet();
 ```
 
+---
+
 ### Encapsulación
 
-Ocultar detalles internos y exponer una API estable. En JS moderno: **campos privados** `#privado`, módulos ES, closures, convenciones con `_`.
+Ocultar detalles internos y exponer una API estable. En JS moderno:
 
-**Ejemplo:**
+- **Campos privados** `#privado`
+- **Módulos ES**
+- **Closures**
+- Convenciones con **`_`** (no enforcement del lenguaje)
+
+**Ejemplo**
 
 ```js
 class Cuenta {
@@ -663,22 +829,26 @@ class Cuenta {
 }
 ```
 
+---
+
 ### Inmutabilidad
 
-No mutar datos originales; producir **nuevas** estructuras (spread, `slice`, etc.). Facilita razonar sobre el estado y optimizaciones en algunos entornos.
+Evitar **mutar** datos compartidos; producir **nuevas** estructuras (`spread`, `slice`, etc.). Facilita el razonamiento sobre el estado y puede ayudar a optimizaciones en algunos entornos.
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 const estado = { items: [1, 2] };
 const nuevo = { ...estado, items: [...estado.items, 3] };
 ```
 
+---
+
 ### Currying
 
-Transformar `f(a, b, c)` en `f(a)(b)(c)` — funciones que devuelven funciones hasta completar argumentos. Útil para reutilización y partial application.
+Transformar `f(a, b, c)` en `f(a)(b)(c)`: funciones que devuelven funciones hasta completar argumentos. Útil para **reutilización** y **aplicación parcial**.
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 const suma = (a) => (b) => a + b;
@@ -686,11 +856,13 @@ const masDiez = suma(10);
 masDiez(5); // 15
 ```
 
+---
+
 ### Funciones puras
 
-Misma entrada → misma salida; **sin efectos secundarios** observables (no I/O, no mutar estado externo). Base del estilo funcional y más fáciles de testear.
+Misma entrada → misma salida; **sin efectos secundarios** observables relevantes (no I/O, no mutar estado externo de forma que afecte otros). Base del estilo funcional y más sencillas de **testear**.
 
-**Ejemplo:**
+**Ejemplo**
 
 ```js
 function cuadrado(n) {
@@ -704,4 +876,4 @@ function impura() {
 
 ---
 
-*Última revisión conceptual: referencia de estudio; contrasta siempre con la documentación oficial (MDN, ECMAScript) para detalles de versión y compatibilidad.*
+*Última revisión conceptual: referencia de estudio; contrasta siempre con la documentación oficial ([MDN](https://developer.mozilla.org/), [ECMAScript](https://tc39.es/ecma262/)) para detalles de versión y compatibilidad.*
