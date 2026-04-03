@@ -415,22 +415,32 @@ descuento20(200); // 160
 
 ### 🧠 Funciones puras
 
-Una función pura es una función que:
+Una **función pura** es una función que se comporta de forma **totalmente predecible**.
 
-👉 Siempre devuelve el mismo resultado si recibe los mismos argumentos  
-👉 No produce efectos secundarios (no cambia nada fuera de ella)
+Cumple **dos reglas principales**:
 
-🔍 ¿Qué significa "sin efectos secundarios"?
+**1. Determinismo**
 
-Que la función NO:
+Si le das los mismos argumentos, **siempre** devuelve el mismo resultado.
 
-modifica variables externas  
-cambia el estado global  
-hace peticiones (fetch)  
-escribe en consola o archivos  
-modifica el DOM  
+- misma entrada → misma salida
 
-✅ Ejemplo de función pura
+**2. Sin efectos secundarios**
+
+No modifica nada fuera de ella ni depende de cosas externas (para calcular su resultado).
+
+⚠️ **¿Qué se considera un efecto secundario?**
+
+En programación funcional, una función deja de ser pura si:
+
+- 🔄 Modifica variables externas (estado global o compartido)
+- 🌐 Hace peticiones (API, base de datos, etc.)
+- 📂 Lee o escribe archivos
+- 🖥️ Manipula el DOM
+- 🖨️ Imprime en consola (`console.log`)
+- ⏰ Depende del tiempo (`Date`, reloj del sistema)
+
+✅ **Ejemplo de función pura**
 
 ```js
 function cuadrado(n) {
@@ -438,27 +448,26 @@ function cuadrado(n) {
 }
 ```
 
-✔ Si llamas cuadrado(2) → siempre será 4  
-✔ No depende de nada externo  
-✔ No cambia nada fuera
+- ✔ Siempre devuelve lo mismo para el mismo `n`
+- ✔ No usa variables externas
+- ✔ No modifica nada fuera
 
-❌ Ejemplo de función impura
+❌ **Ejemplo de función impura**
 
 ```js
 let contador = 0;
 
 function incrementar() {
-  contador++; // modifica algo externo
+  contador++;
 }
 ```
 
-🚫 Problemas:
+- ❌ Modifica una variable externa
+- ❌ Depende del estado previo
 
-El resultado depende del estado externo  
-Es difícil de predecir  
-Es más difícil de testear  
+⚖️ **Otro ejemplo claro**
 
-⚡ Otro ejemplo claro
+✔ **Pura**
 
 ```js
 function suma(a, b) {
@@ -466,14 +475,9 @@ function suma(a, b) {
 }
 ```
 
-👉 Siempre:
+👉 `suma(2, 3)` siempre será `5`.
 
-```js
-suma(2, 3); // 5
-suma(2, 3); // 5
-```
-
-⚠️ Ejemplo impuro más real
+❌ **Impura**
 
 ```js
 function obtenerHora() {
@@ -481,27 +485,25 @@ function obtenerHora() {
 }
 ```
 
-🚫 No es pura porque:
+- ❌ Depende del tiempo (estado externo)
+- ❌ Cada llamada puede devolver algo diferente
 
-Cada vez devuelve algo diferente  
-Depende del tiempo (estado externo)  
+🎯 **¿Por qué son importantes?**
 
-🎯 ¿Por qué son importantes?
+- 🧪 Más fáciles de testear (no necesitas mocks ni estado global)
+- 🔍 Más fáciles de entender
+- 🔁 Más reutilizables
+- 🐛 Menos bugs inesperados
+- 🧩 Ideales para componer funciones
 
-✅ Más fáciles de testear  
-✅ Más predecibles  
-✅ Menos bugs  
-✅ Más fáciles de reutilizar  
+🧠 **Regla fácil de recordar**
 
-🧱 Regla fácil de recordar
+Piensa en una **calculadora**: le das números → te da un resultado → no cambia nada más.
 
-👉 Una función pura es como una calculadora
+📊 **Resumen rápido**
 
-Mismos inputs → mismo output  
-No cambia nada fuera  
-
-🧠 Resumen corto
-
-✔ Depende solo de sus argumentos  
-✔ No modifica nada externo  
-❌ No usa estado global  
+| Función pura | Función impura |
+| ------------ | -------------- |
+| Solo usa sus argumentos | Usa estado externo |
+| Misma entrada → misma salida | Puede cambiar el resultado |
+| Sin efectos secundarios | Tiene efectos secundarios |
