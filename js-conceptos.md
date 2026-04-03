@@ -846,15 +846,66 @@ const nuevo = { ...estado, items: [...estado.items, 3] };
 
 ### Currying
 
-Transformar `f(a, b, c)` en `f(a)(b)(c)`: funciones que devuelven funciones hasta completar argumentos. Útil para **reutilización** y **aplicación parcial**.
+**Currying** es transformar una función que recibe **varios argumentos a la vez** en una **cadena de funciones** que reciben **un argumento cada una**: de `f(a, b, c)` a `f(a)(b)(c)`. Eso permite **aplicar argumentos poco a poco** (*partial application*) y reutilizar las funciones intermedias.
 
-**Ejemplo**
+**Versión normal vs currificada**
+
+En lugar de:
+
+```js
+function suma(a, b) {
+  return a + b;
+}
+```
+
+Versión currificada:
 
 ```js
 const suma = (a) => (b) => a + b;
-const masDiez = suma(10);
-masDiez(5); // 15
 ```
+
+**Qué devuelve cada paso**
+
+- `suma(10)` **no** devuelve un número: devuelve **otra función** `(b) => 10 + b`.
+- Al guardar `const masDiez = suma(10)`, `masDiez` es esa función parcialmente aplicada.
+- `masDiez(5)` → `15` (internamente `10 + 5`).
+
+**Idea clave**
+
+“**Guardar un valor ahora, usarlo después**”: el primer argumento queda cerrado en el closure; los siguientes se pasan en llamadas posteriores.
+
+**Ejemplo práctico (reutilización con un valor fijo)**
+
+```js
+const aplicarDescuento = (descuento) => (precio) =>
+  precio - precio * descuento;
+
+const descuento20 = aplicarDescuento(0.2);
+
+descuento20(100); // 80
+descuento20(200); // 160
+```
+
+Aquí reutilizas la misma lógica con el descuento **0.2** ya fijado.
+
+**Por qué es útil**
+
+- **Reutilización** de funciones configuradas.
+- Código más **composable** y flexible.
+- Encaja con **aplicación parcial** y estilos **funcionales** (p. ej. en React o librerías FP).
+
+**Regla mnemotécnica**
+
+Cada función recibe **un** argumento y devuelve otra función hasta que ya no queden argumentos por aplicar.
+
+**Mini resumen**
+
+| Estilo   | Forma      |
+| -------- | ---------- |
+| Normal   | `f(a, b)`  |
+| Currying | `f(a)(b)`  |
+
+Divide la ejecución en **pasos** y permite fijar argumentos de forma incremental.
 
 ---
 

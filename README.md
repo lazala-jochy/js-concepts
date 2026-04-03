@@ -365,9 +365,53 @@ const newState = { ...state };
 
 ### Currying
 
+**¿Qué es currying?** Es convertir una función que recibe **varios argumentos a la vez** en una **serie de funciones** que reciben **un argumento a la vez**.
+
+👉 **En lugar de esto:**
+
 ```js
-const sum = (a) => (b) => a + b;
+function suma(a, b) {
+  return a + b;
+}
 ```
+
+👉 **Haces esto:**
+
+```js
+const suma = (a) => (b) => a + b;
+```
+
+**¿Qué pasa con `suma(10)`?**
+
+- No devuelve un número.
+- Devuelve **otra función**.
+
+```js
+const masDiez = suma(10);
+// masDiez es equivalente a: (b) => 10 + b
+
+masDiez(5); // 15  → internamente: 10 + 5
+```
+
+🎯 **Idea clave:** guardar un valor **ahora** y usarlo **después** (*partial application*).
+
+**Ejemplo útil — reutilizar lógica con un valor fijo:**
+
+```js
+const aplicarDescuento = (descuento) => (precio) =>
+  precio - precio * descuento;
+
+const descuento20 = aplicarDescuento(0.2);
+
+descuento20(100); // 80
+descuento20(200); // 160
+```
+
+🧱 **Por qué sirve:** reutilización, código más flexible, aplicar argumentos poco a poco, muy usado en estilo funcional (React, librerías FP).
+
+⚠️ **Regla fácil:** cada función recibe **un solo argumento** y devuelve otra función hasta “terminar”.
+
+🧠 **Mini resumen:** normal `f(a, b)` → currying `f(a)(b)`; divide la ejecución en pasos.
 
 ### Funciones puras
 
