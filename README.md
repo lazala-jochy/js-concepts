@@ -415,20 +415,22 @@ descuento20(200); // 160
 
 ### 🧠 Funciones puras
 
-Una **función pura**:
+Una función pura es una función que:
 
-- Siempre devuelve el **mismo resultado** con los **mismos argumentos**.
-- **No** produce **efectos secundarios** (no cambia nada fuera de ella).
+👉 Siempre devuelve el mismo resultado si recibe los mismos argumentos  
+👉 No produce efectos secundarios (no cambia nada fuera de ella)
 
-**¿Qué es “sin efectos secundarios”?** La función **no** debería:
+🔍 ¿Qué significa "sin efectos secundarios"?
 
-- modificar variables externas
-- cambiar estado global
-- hacer peticiones (`fetch`)
-- escribir en consola o archivos
-- modificar el DOM
+Que la función NO:
 
-✅ **Ejemplo puro**
+modifica variables externas  
+cambia el estado global  
+hace peticiones (fetch)  
+escribe en consola o archivos  
+modifica el DOM  
+
+✅ Ejemplo de función pura
 
 ```js
 function cuadrado(n) {
@@ -436,11 +438,11 @@ function cuadrado(n) {
 }
 ```
 
-- `cuadrado(2)` → siempre `4`
-- No depende de nada externo
-- No cambia nada fuera
+✔ Si llamas cuadrado(2) → siempre será 4  
+✔ No depende de nada externo  
+✔ No cambia nada fuera
 
-❌ **Ejemplo impuro**
+❌ Ejemplo de función impura
 
 ```js
 let contador = 0;
@@ -450,9 +452,13 @@ function incrementar() {
 }
 ```
 
-🚫 **Problemas:** el resultado depende del estado externo, es menos predecible y más difícil de testear.
+🚫 Problemas:
 
-**Otro ejemplo puro**
+El resultado depende del estado externo  
+Es difícil de predecir  
+Es más difícil de testear  
+
+⚡ Otro ejemplo claro
 
 ```js
 function suma(a, b) {
@@ -460,9 +466,14 @@ function suma(a, b) {
 }
 ```
 
-👉 `suma(2, 3)` siempre es `5`.
+👉 Siempre:
 
-⚠️ **Impuro (más real)**
+```js
+suma(2, 3); // 5
+suma(2, 3); // 5
+```
+
+⚠️ Ejemplo impuro más real
 
 ```js
 function obtenerHora() {
@@ -470,10 +481,27 @@ function obtenerHora() {
 }
 ```
 
-🚫 No es pura: cada llamada puede devolver algo distinto; depende del **tiempo** (estado externo).
+🚫 No es pura porque:
 
-🎯 **Por qué importan:** más fáciles de testear, más predecibles, menos bugs, más fáciles de reutilizar.
+Cada vez devuelve algo diferente  
+Depende del tiempo (estado externo)  
 
-🧱 **Regla fácil:** como una **calculadora** — mismos inputs → mismo output; no altera nada fuera.
+🎯 ¿Por qué son importantes?
 
-🧠 **Resumen:** depende solo de sus argumentos; no modifica nada externo; evita depender de estado global.
+✅ Más fáciles de testear  
+✅ Más predecibles  
+✅ Menos bugs  
+✅ Más fáciles de reutilizar  
+
+🧱 Regla fácil de recordar
+
+👉 Una función pura es como una calculadora
+
+Mismos inputs → mismo output  
+No cambia nada fuera  
+
+🧠 Resumen corto
+
+✔ Depende solo de sus argumentos  
+✔ No modifica nada externo  
+❌ No usa estado global  
