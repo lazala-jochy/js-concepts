@@ -413,6 +413,67 @@ descuento20(200); // 160
 
 🧠 **Mini resumen:** normal `f(a, b)` → currying `f(a)(b)`; divide la ejecución en pasos.
 
-### Funciones puras
+### 🧠 Funciones puras
 
-Misma entrada → misma salida; sin efectos secundarios observables relevantes.
+Una **función pura**:
+
+- Siempre devuelve el **mismo resultado** con los **mismos argumentos**.
+- **No** produce **efectos secundarios** (no cambia nada fuera de ella).
+
+**¿Qué es “sin efectos secundarios”?** La función **no** debería:
+
+- modificar variables externas
+- cambiar estado global
+- hacer peticiones (`fetch`)
+- escribir en consola o archivos
+- modificar el DOM
+
+✅ **Ejemplo puro**
+
+```js
+function cuadrado(n) {
+  return n * n;
+}
+```
+
+- `cuadrado(2)` → siempre `4`
+- No depende de nada externo
+- No cambia nada fuera
+
+❌ **Ejemplo impuro**
+
+```js
+let contador = 0;
+
+function incrementar() {
+  contador++; // modifica algo externo
+}
+```
+
+🚫 **Problemas:** el resultado depende del estado externo, es menos predecible y más difícil de testear.
+
+**Otro ejemplo puro**
+
+```js
+function suma(a, b) {
+  return a + b;
+}
+```
+
+👉 `suma(2, 3)` siempre es `5`.
+
+⚠️ **Impuro (más real)**
+
+```js
+function obtenerHora() {
+  return new Date();
+}
+```
+
+🚫 No es pura: cada llamada puede devolver algo distinto; depende del **tiempo** (estado externo).
+
+🎯 **Por qué importan:** más fáciles de testear, más predecibles, menos bugs, más fáciles de reutilizar.
+
+🧱 **Regla fácil:** como una **calculadora** — mismos inputs → mismo output; no altera nada fuera.
+
+🧠 **Resumen:** depende solo de sus argumentos; no modifica nada externo; evita depender de estado global.

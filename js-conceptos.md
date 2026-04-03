@@ -911,19 +911,82 @@ Divide la ejecución en **pasos** y permite fijar argumentos de forma incrementa
 
 ### Funciones puras
 
-Misma entrada → misma salida; **sin efectos secundarios** observables relevantes (no I/O, no mutar estado externo de forma que afecte otros). Base del estilo funcional y más sencillas de **testear**.
+Una **función pura** cumple dos condiciones:
 
-**Ejemplo**
+1. **Determinismo:** con los **mismos argumentos**, siempre devuelve el **mismo** resultado (misma entrada → misma salida).
+2. **Sin efectos secundarios observables:** no altera el mundo exterior ni depende de estado mutable externo para su resultado.
+
+**Qué suele considerarse efecto lateral**
+
+La función **no** debería, en la práctica del estilo funcional estricto:
+
+- **Mutar** variables o propiedades fuera de su ámbito (estado global, objetos compartidos).
+- Realizar **I/O**: peticiones de red (`fetch`), lectura/escritura de archivos, **DOM**.
+- **Escribir en consola** u otros canales de salida (en código “puro” estricto también cuenta como observable).
+
+*(En proyectos reales muchas funciones son intencionalmente impuras; lo importante es **saber** cuándo lo son y aislarlas.)*
+
+**Ejemplo de función pura**
 
 ```js
 function cuadrado(n) {
   return n * n;
 }
-let externo = 0;
-function impura() {
-  externo++; // efecto lateral
+```
+
+- `cuadrado(2)` siempre es `4`.
+- Solo depende de `n`, no de variables externas.
+- No modifica nada fuera.
+
+**Ejemplo de función impura**
+
+```js
+let contador = 0;
+
+function incrementar() {
+  contador++; // efecto lateral: muta estado externo
 }
 ```
+
+**Problemas típicos de lo impuro:** el resultado o el comportamiento **dependen del historial** y del estado externo; es **menos predecible** y suele ser **más difícil de testear** de forma aislada.
+
+**Otro ejemplo puro**
+
+```js
+function suma(a, b) {
+  return a + b;
+}
+```
+
+`suma(2, 3)` siempre es `5`.
+
+**Ejemplo impuro habitual**
+
+```js
+function obtenerHora() {
+  return new Date();
+}
+```
+
+No es pura: cada llamada puede devolver un valor **distinto** porque depende del **reloj** (entrada implícita del entorno).
+
+**Por qué son importantes las funciones puras**
+
+- Más **fáciles de testear** (sin montar estado global ni mocks de red).
+- Más **predecibles** y con menos sorpresas al componer código.
+- Menos superficie para **bugs** por efectos encadenados.
+- Más **reutilizables** en distintos contextos.
+
+**Regla mnemotécnica**
+
+Piensa en una **calculadora:** mismos datos de entrada → mismo resultado, sin tocar nada fuera de la función.
+
+**Resumen**
+
+| Pura | Impura |
+| ---- | ------ |
+| Solo argumentos → resultado | Puede leer o mutar estado externo / tiempo / I/O |
+| Misma entrada, misma salida | Misma “llamada” puede variar según el contexto |
 
 ---
 
