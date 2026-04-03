@@ -55,7 +55,7 @@ Documento de referencia para estudiar **fundamentos**, **funcionamiento interno*
 ### [JAVASCRIPT AVANZADO](#javascript-avanzado)
 
 - [`this`](#this)
-- [Prototipos](#prototipos)
+- [Prototipos](#prototipos-en-javascript)
 - [Herencia prototipal](#herencia-prototipal)
 - [Clases (`class`)](#clases-class)
 - [Encapsulación](#encapsulación)
@@ -881,18 +881,113 @@ fn(); // 5
 
 ---
 
-### Prototipos
+### Prototipos en JavaScript
 
-Los objetos pueden enlazar a otro objeto como **prototipo** (`Object.getPrototypeOf`). La **cadena de prototipos** resuelve propiedades no encontradas en el objeto. Las **funciones constructoras** tienen **`.prototype`**, usado al instanciar con **`new`**.
+En JavaScript, los objetos pueden **heredar** propiedades y métodos de otros objetos a través de algo llamado **prototipo**.
 
-**Ejemplo**
+👉 Cada objeto tiene un **enlace interno** a otro objeto, llamado su **prototipo**.
+
+🧭 **¿Cómo funciona?**
+
+Cuando accedes a una propiedad:
+
+1. JavaScript la busca en el **objeto actual**.
+2. Si no la encuentra → la busca en su **prototipo**.
+3. Si no está → sigue **subiendo** en la **cadena de prototipos**.
+4. Hasta llegar a **`null`**.
+
+👉 A esto se le llama **prototype chain** (cadena de prototipos).
+
+✅ **Ejemplo básico**
 
 ```js
-const padre = { saluda() { return "hola"; } };
+const padre = {
+  saluda() {
+    return "hola";
+  },
+};
+
 const hijo = Object.create(padre);
-hijo.saluda(); // delega al prototipo
+
+hijo.saluda(); // "hola"
+```
+
+- ✔ `hijo` no tiene `saluda`
+- ✔ JavaScript lo busca en su prototipo (`padre`)
+
+🔍 **Ver el prototipo**
+
+```js
 Object.getPrototypeOf(hijo) === padre; // true
 ```
+
+🧱 **Funciones constructoras y `.prototype`**
+
+Las funciones en JavaScript tienen una propiedad llamada **`.prototype`**, que se usa cuando creas objetos con **`new`**.
+
+```js
+function Persona(nombre) {
+  this.nombre = nombre;
+}
+
+Persona.prototype.saludar = function () {
+  return `Hola, soy ${this.nombre}`;
+};
+
+const p = new Persona("Jochy");
+
+p.saludar(); // "Hola, soy Jochy"
+```
+
+- ✔ `p` hereda `saludar` desde `Persona.prototype`
+- ✔ No se copia el método: se **comparte**
+
+🔗 **Cadena de prototipos (ejemplo visual)**
+
+```js
+const abuelo = { a: 1 };
+const padre = Object.create(abuelo);
+const hijo = Object.create(padre);
+
+hijo.a; // 1
+```
+
+🔎 **Búsqueda:** `hijo` ❌ → `padre` ❌ → `abuelo` ✅
+
+⚠️ **Sobrescritura (override)**
+
+Si defines una propiedad en el objeto hijo, **tapa** la del prototipo al leer desde el hijo:
+
+```js
+const padre = { x: 1 };
+const hijo = Object.create(padre);
+
+hijo.x = 10;
+
+hijo.x; // 10
+padre.x; // 1
+```
+
+🎯 **¿Por qué es importante?**
+
+- 🔁 Permite **reutilizar** código sin duplicarlo
+- ⚡ Mejora el **rendimiento** (los métodos se comparten)
+- 🧩 Es la base de la **herencia** en JavaScript
+- 🧠 Fundamental para entender **`class`** (azúcar sintáctico sobre prototipos)
+
+🧠 **Regla fácil de recordar**
+
+Si un objeto **no tiene** algo… lo busca en su **padre** (prototipo).
+
+📊 **Resumen**
+
+| Concepto | Explicación |
+| -------- | ----------- |
+| Prototipo | Objeto del que otro hereda |
+| `Object.create()` | Crea un objeto con un prototipo dado |
+| `.prototype` | Usado por funciones constructoras con `new` |
+| Cadena de prototipos | Búsqueda hacia arriba hasta `null` |
+| Override | El hijo puede sobrescribir |
 
 ---
 
