@@ -339,7 +339,9 @@ localStorage.setItem("key", "value");
 
 El valor de **`this`** no depende de **dónde** se define la función, sino de **cómo** se llama (invoca).
 
-👉 **Regla principal:** `this` se determina en **tiempo de ejecución** según la forma de invocación.
+👉 **Regla principal:**
+
+`this` se determina en **tiempo de ejecución** según la forma de invocación.
 
 🧭 **Casos principales**
 
@@ -385,7 +387,7 @@ mostrarThis(); // undefined
 ```
 
 - ✔ `this` → `undefined`
-- 👉 Más seguro; evita errores silenciosos
+- 👉 Más seguro, evita errores silenciosos
 
 **4. 🎯 `call`, `apply`, `bind` (`this` explícito)**
 
@@ -403,7 +405,7 @@ const nueva = saludar.bind(persona);
 nueva(); // "Hola Jochy"
 ```
 
-- ✔ `this` → lo que definas manualmente
+- ✔ `this` → lo que tú definas manualmente
 
 **5. 🆕 Con `new` (constructor)**
 
@@ -416,11 +418,13 @@ const p = new Persona("Jochy");
 p.nombre; // "Jochy"
 ```
 
-- ✔ `this` → la nueva instancia creada
+- ✔ `this` → nueva instancia creada
 
 **6. 🏹 Arrow functions (`this` léxico)**
 
-Las arrow functions **no** tienen su propio `this`. Toman el `this` del contexto donde fueron **creadas**.
+Las arrow functions **no** tienen su propio `this`.
+
+Toman el `this` del contexto donde fueron **creadas**.
 
 ```js
 const obj = {
@@ -435,7 +439,7 @@ obj.regular(); // 10
 obj.arrow(); // undefined (depende del contexto exterior)
 ```
 
-- 👉 `this` en la arrow **no** es `obj`, sino el exterior (p. ej. `window` o `undefined`)
+- 👉 `this` en arrow **no** es `obj`, sino el exterior (ej: `window` o `undefined`)
 
 **7. 🔄 Método extraído (cambio de contexto)**
 
@@ -452,7 +456,7 @@ fn(); // undefined o window.x
 ```
 
 - ❌ Se pierde el contexto
-- 👉 Ya no se llama como método de `obj`
+- 👉 ya no se llama como método de `obj`
 
 **8. 🧠 Solución: `bind` para mantener `this`**
 
@@ -475,11 +479,11 @@ fn(); // 5
 | Cómo se llama | Valor de `this` |
 | ------------- | --------------- |
 | `obj.metodo()` | `obj` |
-| Función normal | `window` / `undefined` (strict) |
-| `call` / `apply` / `bind` | El que pases |
-| `new` | Nueva instancia |
-| Arrow function | `this` del entorno |
-| Método extraído | Se pierde el contexto |
+| función normal | `window` / `undefined` (strict) |
+| `call`/`apply`/`bind` | el que tú pases |
+| `new` | nueva instancia |
+| arrow function | `this` del entorno |
+| método extraído | se pierde el contexto |
 
 ### Prototipos
 
