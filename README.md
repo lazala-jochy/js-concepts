@@ -1,12 +1,374 @@
 # js-concepts
 
-Guías de conceptos para estudiar. Cada tema vive en su propio archivo; la tabla de abajo es el índice.
+Guías de conceptos para estudiar. La guía **JavaScript** tiene un resumen en este README; el detalle ampliado está en **[js-conceptos.md](./js-conceptos.md)**.
 
-## Tabla de contenidos
+## Índice del repositorio
 
-| Tema | Documento |
-|------|-----------|
-| JavaScript | [js-conceptos.md](./js-conceptos.md) |
-| Node.js | *Próximamente — añade `nodejs-conceptos.md` en la raíz del repo y enlázalo aquí.* |
+| Tema        | Documento                                                                 |
+| ----------- | ------------------------------------------------------------------------- |
+| JavaScript  | [js-conceptos.md](./js-conceptos.md) — guía completa                      |
+| Node.js     | *Próximamente — añade `nodejs-conceptos.md` en la raíz y enlázalo aquí.* |
 
 Cuando agregues una guía nueva, crea un archivo con un nombre claro (por ejemplo `nodejs-conceptos.md`, `typescript-conceptos.md`) y añade una fila a la tabla apuntando a `./nombre-del-archivo.md`.
+
+---
+
+## Tabla de contenidos (JavaScript)
+
+### 🔹 FUNDAMENTOS
+
+- Variables (`var`, `let`, `const`)
+- Tipos de datos
+- Operadores
+- Condicionales
+- Bucles
+- Funciones
+
+### ⚙️ FUNCIONAMIENTO INTERNO
+
+- Scope
+- Hoisting
+- Closures
+- Call Stack
+- Event Loop
+- Execution Context
+- Memory Heap
+
+### 📦 ESTRUCTURAS Y MÉTODOS
+
+- Objetos
+- Arrays
+- Destructuring
+- Spread / Rest
+- Métodos de arrays
+- Métodos de objetos
+
+### ⏳ ASINCRONÍA
+
+- Callbacks
+- Promises
+- Async / Await
+- Manejo de errores
+- Métodos de `Promise`
+
+### 🌐 DOM Y NAVEGADOR
+
+- DOM
+- Eventos
+- Fetch
+- Storage
+
+### 🚀 JAVASCRIPT AVANZADO
+
+- `this`
+- Prototipos
+- Clases
+- Encapsulación
+- Inmutabilidad
+- Currying
+- Funciones puras
+
+---
+
+## 🔹 FUNDAMENTOS
+
+### Variables (`var`, `let`, `const`)
+
+| Tipo    | Scope   | Reasignar | Redeclarar | Notas                    |
+| ------- | ------- | --------- | ---------- | ------------------------ |
+| `var`   | función | ✅        | ✅         | hoisting con `undefined` |
+| `let`   | bloque  | ✅        | ❌         | tiene TDZ                |
+| `const` | bloque  | ❌        | ❌         | no cambia la referencia  |
+
+```js
+const obj = { n: 1 };
+obj.n = 2; // permitido
+// obj = {} // error
+```
+
+👉 **Best practice:** usa `const` por defecto; `let` si necesitas cambiar el valor.
+
+### Tipos de datos
+
+🧩 **Primitivos (por valor):** `string`, `number`, `boolean`, `null`, `undefined`, `bigint`, `symbol`
+
+📦 **Objetos (por referencia):** arrays, funciones, objetos, etc.
+
+```js
+const a = [1];
+const b = a;
+
+a === b; // true (misma referencia)
+```
+
+⚠️ **Error común:** pensar que comparar objetos compara el contenido.
+
+### Operadores
+
+- `===` mejor que `==`
+- `??` solo usa el default si es `null` o `undefined`
+- `?.` evita errores si algo no existe
+
+```js
+const name = user?.name ?? "guest";
+```
+
+### Condicionales
+
+```js
+if (rol === "admin") {
+  // acceso total
+} else {
+  // otro rol
+}
+```
+
+👉 `switch` es útil para muchos casos; recuerda `break`.
+
+### Bucles
+
+- `for` → control total
+- `while` → depende de la condición
+- `for...of` → valores
+- `for...in` → propiedades
+
+```js
+for (const v of [1, 2, 3]) console.log(v);
+```
+
+### Funciones
+
+Tipos:
+
+```js
+function normal() {}
+const expresion = function () {};
+const arrow = () => {};
+```
+
+⚠️ **Arrow functions:**
+
+- No tienen `this` propio
+- No tienen `arguments` de función clásica
+
+---
+
+## ⚙️ FUNCIONAMIENTO INTERNO
+
+### Scope
+
+Dónde vive una variable:
+
+- Global
+- Función
+- Bloque
+
+### Hoisting
+
+JavaScript procesa las declaraciones antes de ejecutar el código línea a línea.
+
+```js
+console.log(a); // undefined
+var a = 10;
+```
+
+⚠️ `let` y `const` → error si accedes antes (TDZ).
+
+### Closures
+
+Función que recuerda variables externas.
+
+```js
+function contador() {
+  let n = 0;
+  return () => ++n;
+}
+```
+
+👉 Muy usado en factories y encapsulación.
+
+### Call Stack
+
+Pila de ejecución: `a` → `b` → `c` → (vuelve).
+
+⚠️ Demasiada recursión sin límite → stack overflow.
+
+### Event Loop (clave 🔥)
+
+```js
+console.log("A");
+
+setTimeout(() => console.log("B"), 0);
+
+Promise.resolve().then(() => console.log("C"));
+
+console.log("D");
+```
+
+**Resultado:** `A` → `D` → `C` → `B`
+
+📌 **Regla importante:** primero código síncrono; luego microtareas (promesas); luego macrotareas (`setTimeout`).
+
+### Execution Context
+
+Cada función crea su propio entorno: variables, `this`, scope.
+
+### Memory Heap
+
+Dónde viven los objetos.
+
+⚠️ Si algo sigue referenciado → no se borra (GC).
+
+---
+
+## 📦 ESTRUCTURAS Y MÉTODOS
+
+### Objetos
+
+```js
+const user = { name: "Ana" };
+```
+
+### Arrays
+
+```js
+const nums = [1, 2, 3];
+```
+
+### Destructuring
+
+```js
+const { name } = user;
+const [a, b] = [1, 2];
+```
+
+### Spread / Rest
+
+```js
+const copy = [...arr];
+
+function sum(...nums) {}
+```
+
+### Métodos de arrays
+
+- `arr.map()` — transforma
+- `arr.filter()` — filtra
+- `arr.reduce()` — acumula
+- `arr.forEach()` — solo ejecuta (no devuelve un array nuevo útil)
+
+---
+
+## ⏳ ASINCRONÍA
+
+### Callbacks
+
+```js
+setTimeout(() => {}, 1000);
+```
+
+### Promises
+
+```js
+fetch(url)
+  .then((res) => res.json())
+  .catch((err) => {});
+```
+
+### Async / Await
+
+```js
+const data = await fetch(url);
+```
+
+👉 Suele leerse más claro que encadenar muchos `.then()`.
+
+### Manejo de errores
+
+```js
+try {
+  await algo();
+} catch (e) {}
+```
+
+### Métodos importantes
+
+- `Promise.all` — falla si una falla
+- `Promise.allSettled` — espera a todas (éxito o error)
+- `Promise.race` — gana la primera que termina
+
+---
+
+## 🌐 DOM Y NAVEGADOR
+
+### DOM
+
+```js
+document.querySelector("#id");
+```
+
+### Eventos
+
+```js
+element.addEventListener("click", () => {});
+```
+
+### Event bubbling
+
+Los eventos suben en el DOM (de hijo hacia padre).
+
+### Fetch
+
+```js
+const res = await fetch(url);
+```
+
+⚠️ **Ojo:** `fetch` no rechaza la promesa por errores HTTP (4xx/5xx); comprueba `res.ok` o el status.
+
+### Storage
+
+```js
+localStorage.setItem("key", "value");
+```
+
+---
+
+## 🚀 JAVASCRIPT AVANZADO
+
+### `this`
+
+Depende de **cómo** llamas la función, no solo de dónde está escrita.
+
+### Prototipos
+
+JavaScript usa herencia por prototipos; las clases son azúcar sintáctico sobre ese modelo.
+
+### Clases
+
+```js
+class User {}
+```
+
+### Encapsulación
+
+```js
+class A {
+  #privado = 1;
+}
+```
+
+### Inmutabilidad
+
+```js
+const newState = { ...state };
+```
+
+### Currying
+
+```js
+const sum = (a) => (b) => a + b;
+```
+
+### Funciones puras
+
+Misma entrada → misma salida; sin efectos secundarios observables relevantes.
