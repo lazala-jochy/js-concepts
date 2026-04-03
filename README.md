@@ -335,9 +335,151 @@ localStorage.setItem("key", "value");
 
 ## 🚀 JAVASCRIPT AVANZADO
 
-### `this`
+### 🔹 `this` en JavaScript
 
-Depende de **cómo** llamas la función, no solo de dónde está escrita.
+El valor de **`this`** no depende de **dónde** se define la función, sino de **cómo** se llama (invoca).
+
+👉 **Regla principal:** `this` se determina en **tiempo de ejecución** según la forma de invocación.
+
+🧭 **Casos principales**
+
+**1. 🧱 Método de objeto**
+
+Cuando una función se llama como método de un objeto:
+
+```js
+const obj = {
+  x: 10,
+  getX() {
+    return this.x;
+  },
+};
+
+obj.getX(); // 10
+```
+
+- ✔ `this` → el objeto (`obj`)
+
+**2. 🌍 Función suelta (no estricta)**
+
+```js
+function mostrarThis() {
+  return this;
+}
+
+mostrarThis(); // window (en navegador)
+```
+
+- ✔ `this` → objeto global (`window` en navegador)
+
+**3. ⚠️ Función suelta en modo estricto**
+
+```js
+"use strict";
+
+function mostrarThis() {
+  return this;
+}
+
+mostrarThis(); // undefined
+```
+
+- ✔ `this` → `undefined`
+- 👉 Más seguro; evita errores silenciosos
+
+**4. 🎯 `call`, `apply`, `bind` (`this` explícito)**
+
+```js
+function saludar() {
+  return `Hola ${this.nombre}`;
+}
+
+const persona = { nombre: "Jochy" };
+
+saludar.call(persona); // "Hola Jochy"
+saludar.apply(persona); // "Hola Jochy"
+
+const nueva = saludar.bind(persona);
+nueva(); // "Hola Jochy"
+```
+
+- ✔ `this` → lo que definas manualmente
+
+**5. 🆕 Con `new` (constructor)**
+
+```js
+function Persona(nombre) {
+  this.nombre = nombre;
+}
+
+const p = new Persona("Jochy");
+p.nombre; // "Jochy"
+```
+
+- ✔ `this` → la nueva instancia creada
+
+**6. 🏹 Arrow functions (`this` léxico)**
+
+Las arrow functions **no** tienen su propio `this`. Toman el `this` del contexto donde fueron **creadas**.
+
+```js
+const obj = {
+  x: 10,
+  regular() {
+    return this.x;
+  },
+  arrow: () => this?.x,
+};
+
+obj.regular(); // 10
+obj.arrow(); // undefined (depende del contexto exterior)
+```
+
+- 👉 `this` en la arrow **no** es `obj`, sino el exterior (p. ej. `window` o `undefined`)
+
+**7. 🔄 Método extraído (cambio de contexto)**
+
+```js
+const obj = {
+  x: 5,
+  getX() {
+    return this.x;
+  },
+};
+
+const fn = obj.getX;
+fn(); // undefined o window.x
+```
+
+- ❌ Se pierde el contexto
+- 👉 Ya no se llama como método de `obj`
+
+**8. 🧠 Solución: `bind` para mantener `this`**
+
+```js
+const obj = {
+  x: 5,
+  getX() {
+    return this.x;
+  },
+};
+
+const fn = obj.getX.bind(obj);
+fn(); // 5
+```
+
+- ✔ `this` queda fijado correctamente
+
+🎯 **Resumen rápido**
+
+| Cómo se llama | Valor de `this` |
+| ------------- | --------------- |
+| `obj.metodo()` | `obj` |
+| Función normal | `window` / `undefined` (strict) |
+| `call` / `apply` / `bind` | El que pases |
+| `new` | Nueva instancia |
+| Arrow function | `this` del entorno |
+| Método extraído | Se pierde el contexto |
 
 ### Prototipos
 
