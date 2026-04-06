@@ -69,29 +69,119 @@ Documento de referencia para estudiar **fundamentos**, **funcionamiento interno*
 
 ### Variables (`var`, `let`, `const`)
 
-| Declaración | Ámbito | Redeclaración | Reasignación | Comportamiento especial |
-|-------------|--------|---------------|--------------|-------------------------|
-| **`var`** | Función o global | Sí | Sí | **Hoisting**: existe como `undefined` hasta la asignación |
-| **`let`** | Bloque | No (en el mismo bloque) | Sí | **TDZ** (*temporal dead zone*): no accesible antes de la línea de declaración |
-| **`const`** | Bloque | No | No (del **enlace**) | Constante de **enlace**: el identificador no se reasigna; objetos/arrays pueden **mutarse** por dentro |
+Las variables en JavaScript se pueden declarar usando `var`, `let` o `const`. Cada una tiene diferencias importantes en ámbito (*scope*), re-declaración, reasignación y comportamiento interno.
 
-- **`var`**: ámbito de **función** (o global), no de bloque.
-- **`let` / `const`**: ámbito de **bloque** `{}`.
+#### Comparación rápida
 
-**Ejemplo**
+| Declaración | Ámbito (Scope) | Redeclaración | Reasignación | Comportamiento especial |
+|-------------|----------------|---------------|--------------|-------------------------|
+| `var` | Función o global | ✅ Sí | ✅ Sí | **Hoisting**: se eleva y se inicializa como `undefined` |
+| `let` | Bloque `{}` | ❌ No | ✅ Sí | **Temporal Dead Zone (TDZ)** |
+| `const` | Bloque `{}` | ❌ No | ❌ No | Referencia constante (no se puede reasignar) |
+
+#### Conceptos clave
+
+**1. Ámbito (Scope)**
+
+`var` tiene ámbito de función, no respeta bloques `{}`. `let` y `const` tienen ámbito de bloque.
 
 ```js
-var x = 1;
-let y = 2;
-const z = { n: 3 };
-y = 20;
-// z = {}; // Error: no reasignar const
-z.n = 30; // válido: mutar el objeto
+if (true) {
+  var a = 10;
+  let b = 20;
+}
+
+console.log(a); // 10
+console.log(b); // ReferenceError
 ```
 
-**Notas clave**
+**2. Hoisting**
 
-- Con `const`, solo es constante la **referencia**, no necesariamente el contenido interno de objetos o arrays.
+El *hoisting* significa que las declaraciones se "mueven" al inicio de su contexto.
+
+*`var`*
+
+```js
+console.log(x); // undefined
+var x = 5;
+```
+
+Internamente:
+
+```js
+var x;
+console.log(x); // undefined
+x = 5;
+```
+
+*`let` y `const` (TDZ)*
+
+```js
+console.log(y); // ReferenceError
+let y = 10;
+```
+
+Esto ocurre por la **Temporal Dead Zone (TDZ)**: la variable existe, pero no se puede usar antes de su declaración.
+
+**3. Reasignación vs redeclaración**
+
+```js
+let a = 1;
+a = 2; // permitido
+
+let a = 3; // Error: no se puede redeclarar en el mismo bloque
+
+var b = 1;
+var b = 2; // permitido (puede causar errores difíciles de detectar)
+```
+
+**4. `const` y mutabilidad**
+
+`const` no permite reasignar la variable, pero sí permite modificar el contenido interno si es un objeto o array.
+
+```js
+const obj = { value: 1 };
+
+obj.value = 2; // permitido
+obj = {}; // Error
+
+const arr = [1, 2, 3];
+
+arr.push(4); // permitido
+arr = []; // Error
+```
+
+#### Buenas prácticas
+
+- Usa `const` por defecto.
+- Usa `let` solo cuando necesites reasignar.
+- Evita `var` en código moderno.
+- Declara las variables lo más cerca posible de donde se usan.
+- Prefiere nombres descriptivos.
+
+#### Ejemplo completo
+
+```js
+function example() {
+  if (true) {
+    var x = 1;
+    let y = 2;
+    const z = { n: 3 };
+
+    y = 20;
+    z.n = 30;
+  }
+
+  console.log(x); // 1
+  console.log(y); // ReferenceError
+}
+```
+
+#### Resumen
+
+- **`var`**: antiguo, flexible pero propenso a errores.
+- **`let`**: moderno, permite cambios controlados.
+- **`const`**: moderno, evita reasignaciones accidentales.
 
 ---
 
