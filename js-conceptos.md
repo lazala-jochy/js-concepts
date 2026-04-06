@@ -580,17 +580,98 @@ a(); // call stack: a → b → c, luego se vacía al volver
 
 ### Event Loop
 
-Coordina el **call stack**, la **cola de tareas** (*macrotasks*, p. ej. `setTimeout`) y las **microtareas** (p. ej. callbacks de **promesas**). Cuando el stack está vacío, el loop toma la siguiente tarea. Las **microtareas** se drenan **antes** del siguiente **macrotask**.
+**🧠 Explicación simple**
 
-**Ejemplo**
+JavaScript solo tiene **un hilo** (*single-thread*) → solo puede hacer **una cosa a la vez**.
+
+Entonces, ¿cómo maneja cosas asíncronas como `setTimeout` o `Promise`? Usa el **Event Loop**.
+
+#### Las 3 piezas clave
+
+**1. Call Stack (pila de ejecución)**
+
+- Donde se ejecuta el código **síncrono**.
+- Funciona como una pila (**LIFO**).
+
+**2. Task Queue (macrotareas)**
+
+Ejemplos: `setTimeout`, `setInterval`, eventos del DOM.
+
+Van a una cola de macrotareas.
+
+**3. Microtask Queue (microtareas)**
+
+Ejemplos: `Promise.then`, `queueMicrotask`.
+
+Tienen **más prioridad** que la cola de macrotareas.
+
+#### ¿Qué hace el Event Loop?
+
+**Regla clave:** cuando el **call stack** está vacío, el Event Loop:
+
+1. Ejecuta **todas** las microtareas pendientes.
+2. Luego ejecuta **una** macrotarea.
+3. Repite.
+
+#### Ejemplo paso a paso
 
 ```js
 console.log("A");
+
 setTimeout(() => console.log("B"), 0);
+
 Promise.resolve().then(() => console.log("C"));
+
 console.log("D");
-// Orden típico: A, D, C, B (microtarea antes que el timeout macrotarea)
 ```
+
+**Ejecución (paso a paso)**
+
+**1. Código síncrono primero**
+
+- `console.log("A")` → imprime `A`.
+- `console.log("D")` → imprime `D`.
+
+Salida hasta aquí: `A`, luego `D`.
+
+**2. Lo asíncrono**
+
+- `setTimeout` → el callback va a la **cola de macrotareas**.
+- `Promise.then` → el callback va a la **cola de microtareas**.
+
+**3. Stack vacío → entra el Event Loop**
+
+Primero se drenan las **microtareas** → imprime `C`.
+
+**4. Después, macrotareas**
+
+Imprime `B`.
+
+**Resultado final:** `A`, `D`, `C`, `B`.
+
+#### Regla de oro
+
+Las **microtareas siempre** se ejecutan **antes** que las macrotareas, **aunque** el `setTimeout` tenga `0` ms.
+
+#### Visual rápido
+
+```text
+Call stack vacío
+       ↓
+Microtareas (Promise, queueMicrotask) → primero
+       ↓
+Macrotareas (setTimeout, DOM, …) → después
+```
+
+#### Error común
+
+Pensar que `setTimeout(..., 0)` se ejecuta “al instante”. **No** es inmediato: solo significa “cuando puedas” (stack vacío y **después** de haber vaciado las microtareas).
+
+#### Resumen simple
+
+- JS ejecuta primero lo **síncrono**.
+- Luego: **microtareas** (promesas, `queueMicrotask`) y después **macrotareas** (`setTimeout`, etc.).
+- El Event Loop **repite** este ciclo constantemente.
 
 ---
 
