@@ -10,6 +10,7 @@ Documento de referencia para estudiar **fundamentos**, **funcionamiento interno*
 
 - [Variables (`var`, `let`, `const`)](#variables-var-let-const)
 - [Tipos de datos](#tipos-de-datos)
+- [Value vs Reference en JavaScript](#value-vs-reference-en-javascript)
 - [Operadores](#operadores)
 - [Condicionales (`if`, `else`, `switch`)](#condicionales-if-else-switch)
 - [Bucles (`for`, `while`, `do while`)](#bucles-for-while-do-while)
@@ -137,19 +138,91 @@ var b = 2; // permitido (puede causar errores difíciles de detectar)
 
 **4. `const` y mutabilidad**
 
-`const` no permite reasignar la variable, pero sí permite modificar el contenido interno si es un objeto o array.
+**🧠 La idea principal**
+
+`const` **no** hace el objeto inmutable. Lo que hace es **proteger la referencia**, no el contenido.
+
+**🔗 ¿Qué significa “referencia”?**
+
+Cuando haces esto:
 
 ```js
-const obj = { value: 1 };
+const obj = { n: 1 };
+```
 
-obj.value = 2; // permitido
-obj = {}; // Error
+`obj` no contiene el objeto directamente: guarda una **referencia** (una dirección en memoria) al objeto. Es como si `obj` fuera un puntero hacia ese objeto.
 
+**🔒 ¿Qué bloquea `const`?**
+
+`const` impide **cambiar esa referencia**:
+
+```js
+const obj = { n: 1 };
+
+obj = { n: 2 }; // Error
+```
+
+Porque estás intentando que `obj` apunte a **otro** objeto distinto.
+
+**🔓 ¿Qué sí permite?**
+
+Modificar el contenido **dentro del mismo** objeto:
+
+```js
+const obj = { n: 1 };
+
+obj.n = 2; // válido
+```
+
+Aquí la referencia es la misma; solo cambias lo que hay dentro.
+
+**📦 Ejemplo con memoria (modelo mental)**
+
+```text
+obj ─────► { n: 1 }
+```
+
+Después de `obj.n = 2;`:
+
+```text
+obj ─────► { n: 2 }
+```
+
+La flecha (referencia) no cambió; solo cambió el contenido.
+
+**🚫 Pero esto sí rompe la regla**
+
+```js
+obj = { n: 3 }; // Error
+```
+
+Sería otra flecha hacia otro objeto: cambiaste la referencia.
+
+**🧊 ¿Cómo hacer un objeto realmente inmutable?**
+
+Puedes usar:
+
+```js
+const obj = Object.freeze({ n: 1 });
+
+obj.n = 2; // no cambia el valor; en modo estricto lanza TypeError
+```
+
+`Object.freeze` es **superficial** (*shallow*): no congela objetos anidados.
+
+Con **arrays** pasa lo mismo que con objetos: no reasignas el enlace, pero sí puedes mutar el contenido del mismo array.
+
+```js
 const arr = [1, 2, 3];
 
-arr.push(4); // permitido
+arr.push(4); // válido
 arr = []; // Error
 ```
+
+**🧾 Resumen simple**
+
+- `const` = no puedes cambiar **a dónde apunta** la variable.
+- Sí puedes cambiar **lo que hay dentro** (en objetos y arrays), porque se manejan por **referencia**.
 
 #### Buenas prácticas
 
@@ -215,6 +288,88 @@ a === b; // true (misma referencia)
 **Notas clave**
 
 - `typeof null` es `"object"` por razones históricas del lenguaje; para comprobar `null` usa comparación explícita (`value === null`).
+
+---
+
+### Value vs Reference en JavaScript
+
+**🧠 Idea central:** en JavaScript los primitivos se comportan como **valor** y los objetos como **referencia**; al pasar argumentos a una función, lo que se copia es siempre un valor (que, para objetos, es la referencia).
+
+#### 🔹 1. Variable por valor (*pass by value*)
+
+Una variable **guarda el valor directamente**. Cuando la copias, se crea una **copia independiente**.
+
+```js
+let a = 10;
+let b = a;
+
+b = 20;
+
+console.log(a); // 10
+console.log(b); // 20
+```
+
+`a` y `b` son dos valores separados; cambiar `b` no afecta a `a`.
+
+#### 🔹 2. Variable por referencia (*pass by reference*, en la práctica)
+
+La variable guarda una **referencia** (dirección en memoria) al objeto. Cuando “copias” la variable, **ambas apuntan al mismo objeto**.
+
+```js
+const obj1 = { value: 10 };
+const obj2 = obj1;
+
+obj2.value = 20;
+
+console.log(obj1.value); // 20
+console.log(obj2.value); // 20
+```
+
+`obj1` y `obj2` apuntan al **mismo** objeto; cambiar uno se refleja en el otro.
+
+#### 🔍 Diferencia clave
+
+| Tipo | Qué se copia | ¿Afecta al original? |
+|------|--------------|----------------------|
+| Por valor | El valor | No |
+| Por referencia | La referencia (memoria) | Sí |
+
+#### 📦 Tipos en JavaScript
+
+**Primitivos → por valor**
+
+`number`, `string`, `boolean`, `null`, `undefined`, `symbol`, `bigint`
+
+```js
+let x = "hello";
+let y = x;
+
+y = "bye";
+
+console.log(x); // "hello"
+```
+
+**Objetos → por referencia**
+
+Incluye `object`, `array`, `function` y, en general, todo lo que no es primitivo.
+
+```js
+const arr1 = [1, 2];
+const arr2 = arr1;
+
+arr2.push(3);
+
+console.log(arr1); // [1, 2, 3]
+```
+
+#### ⚠️ Importante (esto confunde mucho)
+
+JavaScript **no** es *pass by reference* “puro” en el sentido de otros lenguajes: en la práctica se habla de **pass by value of the reference** (*call by sharing*): **se copia la referencia** como valor, no “el mismo identificador” del llamado. Dos variables pueden compartir el mismo objeto en memoria.
+
+#### 🧾 Resumen simple
+
+- **Primitivos** → copias el **valor**.
+- **Objetos** → copias la **referencia**; por eso los objetos se **comparten** entre variables.
 
 ---
 
