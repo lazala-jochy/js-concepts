@@ -677,35 +677,165 @@ Pensar que `setTimeout(..., 0)` se ejecuta “al instante”. **No** es inmediat
 
 ### Execution Context
 
-Entorno donde corre un fragmento de código: incluye el **binding de `this`**, el **entorno léxico** (cadena de scopes) y el estado de la función. Hay contexto **global** y uno por **invocación** de función (y casos especiales como `eval` según modo estricto).
+**🧠 Idea simple:** un **Execution Context** es **el lugar donde JavaScript ejecuta tu código**.
 
-**Ejemplo**
+#### 🔧 ¿Qué hay dentro?
+
+Cada contexto incluye, en esencia:
+
+- **`this`** → quién está “activo” como receptor de la llamada (según **cómo** invocas la función).
+- **Variables** → enlaces que declaras (`let`, `const`, `var`, parámetros, etc.).
+- **Scope** / **entorno léxico** → a qué variables puede acceder (cadena de *scopes*).
+
+*(Hay más detalle en motores reales — p. ej. fase de creación vs ejecución — pero este modelo sirve para razonar el día a día.)*
+
+#### 🔁 Tipos (muy simple)
+
+**🌍 1. Global**
+
+- Se crea cuando arranca el programa.
+- Solo hay **uno** (el contexto global de ese programa / *realm*).
+- En el navegador suele asociarse al objeto global (`globalThis` / `window`).
+
+**⚙️ 2. Función**
+
+- Se crea en cada **invocación** de una función (cada llamada puede tener su propio contexto).
+
+#### 📌 Ejemplo fácil
 
 ```js
 const o = {
   x: 1,
   m() {
-    return this.x; // this = o al llamar o.m()
+    return this.x;
   },
 };
+
 o.m(); // 1
 ```
+
+#### 🧩 ¿Qué pasa aquí?
+
+Llamas `o.m()` → se crea un contexto de función donde **`this`** queda ligado a **`o`**. Por eso `return this.x` devuelve `1`.
+
+#### ⚠️ Ejemplo importante (método extraído)
+
+```js
+const o = {
+  x: 1,
+  m() {
+    return this.x;
+  },
+};
+
+const fn = o.m;
+fn();
+```
+
+#### 😵 ¿Por qué falla?
+
+Aquí **no** llamas `o.m()`, sino `fn()` (función suelta). **`this`** ya **no** es `o`: en **modo estricto** suele ser `undefined` (y en modo no estricto, el objeto global — otro detalle que explica bugs silenciosos).
+
+#### 🔥 Regla clave
+
+**`this` depende de cómo llamas la función**, no de dónde está escrita en el código.
+
+#### 🧾 Resumen corto
+
+- **Execution Context** = el entorno donde corre ese trozo de código.
+- Hay **uno global** y **uno por cada invocación** de función (en este modelo simplificado).
+- Incluye **`this`**, variables locales y acceso vía **scope**.
+- **`this` cambia** según la forma de la llamada (`obj.metodo()`, `fn()`, `call`/`apply`/`bind`, `new`, etc.).
 
 ---
 
 ### Memory Heap
 
-Región donde residen **objetos** y datos dinámicos (referenciados desde el stack). El **garbage collector** libera lo **inalcanzable**. Las **closures** mantienen vivas las variables capturadas mientras la función interna siga referenciada.
+**🧠 Idea simple:** el **Memory Heap** es el lugar en memoria donde viven los **objetos** y los datos dinámicos “grandes” (en el modelo mental habitual: todo lo que no es un primitivo ligado directamente al frame).
 
-**Ejemplo**
+#### 🔧 ¿Cómo funciona?
+
+JavaScript (en la práctica del motor) combina dos zonas:
+
+**1. Stack (rápido, por frame)**
+
+- Valores primitivos locales y metadatos del frame.
+- **Referencias** (punteros) hacia lo que vive en el heap.
+
+**2. Heap (memoria dinámica)**
+
+- Objetos `{}`, arrays `[]`, funciones como valores, etc.
+
+Lo “complejo” o de tamaño variable suele vivir en el **heap**; el **stack** guarda referencias y el trabajo síncrono de la llamada actual.
+
+#### 📦 Ejemplo simple
+
+```js
+const obj = { name: "Jochy" };
+```
+
+- `obj` (el **enlace** / variable local) vive en el **stack** (del frame actual).
+- El objeto `{ name: "Jochy" }` vive en el **heap**.
+- `obj` **apunta** a ese objeto.
+
+#### 🧹 Garbage Collector (limpieza automática)
+
+El motor **libera memoria automáticamente** cuando los valores ya no son **alcanzables** (nadie puede llegar a ellos desde el código en ejecución).
+
+```js
+let obj = { name: "Jochy" };
+
+obj = null;
+```
+
+Si no queda ninguna otra referencia al objeto `{ name: "Jochy" }`, el **garbage collector** puede reclamar ese espacio del heap.
+
+#### 🔥 Parte importante: closures
+
+Aquí suele confundirse la gente.
 
 ```js
 function f() {
   const grande = new Array(1e6).fill(0);
   return () => grande[0];
 }
-const g = f(); // el array sigue en el heap mientras exista g
+
+const g = f();
 ```
+
+#### 🧩 ¿Qué pasa aquí?
+
+- Se crea `grande` (un array grande en el **heap**).
+- Se devuelve una función que **cierra** sobre `grande`: `() => grande[0]`.
+
+Esa función **recuerda** `grande` a través del **entorno léxico** (closure).
+
+#### 🤯 ¿Por qué no se borra el array?
+
+Aunque `f()` ya terminó, **`g` sigue usando** `grande` (indirectamente: la función retornada lo referencia). Mientras `g` exista y sea alcanzable, **`grande` sigue en memoria** y el GC **no** puede eliminarlo.
+
+#### 🧠 Idea clave
+
+Una **closure** mantiene **vivas** las variables del entorno que la función necesita. **Mientras la función interna exista y esté referenciada**, esos datos del heap pueden seguir ocupando memoria.
+
+#### ⚠️ Esto puede causar problemas
+
+Si creas muchas closures que capturan datos grandes:
+
+```js
+const g1 = f();
+const g2 = f();
+const g3 = f();
+```
+
+Cada llamada a `f()` puede dejar **otro** array grande en el heap mientras la closure correspondiente siga viva.
+
+#### 🧾 Resumen simple
+
+- **Heap** = donde viven objetos, arrays y valores dinámicos “pesados”.
+- **Stack** = frames de llamada; referencias y primitivos locales (modelo mental).
+- **Garbage Collector** = elimina lo **inalcanzable**.
+- **Closures** = pueden **impedir** que se libere memoria mientras la función que captura siga referenciada.
 
 ---
 
