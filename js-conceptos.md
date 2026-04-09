@@ -15,6 +15,7 @@ Documento de referencia para estudiar **fundamentos**, **funcionamiento interno*
 - [Condicionales (`if`, `else`, `switch`)](#condicionales-if-else-switch)
 - [Bucles (`for`, `while`, `do while`)](#bucles-for-while-do-while)
 - [Funciones (declaración, expresión, arrow)](#funciones-declaración-expresión-arrow)
+- [Funciones de primera clase (`first-class`)](#funciones-de-primera-clase-first-class)
 
 ### [FUNCIONAMIENTO INTERNO](#funcionamiento-interno)
 
@@ -493,6 +494,46 @@ const mult = (a, b) => a * b;
 **Notas clave**
 
 - No uses arrow functions como métodos de objeto cuando necesites que `this` sea la instancia (salvo que quieras explícitamente el `this` léxico exterior).
+
+---
+
+### Funciones de primera clase (`first-class`)
+
+Una **función de primera clase** (*first-class function*) en JavaScript es aquella que se **trata como cualquier otro valor**: puedes guardarla, pasarla y devolverla igual que un número o un string.
+
+Eso implica que una función puede:
+
+- **Asignarse a una variable**
+- **Pasarse como argumento** a otra función
+- **Retornarse** desde otra función
+
+**Ejemplo**
+
+```js
+// 1. Asignar una función a una variable
+const saludar = function (nombre) {
+  return `Hola, ${nombre}`;
+};
+
+// 2. Pasar una función como argumento
+function ejecutarFuncion(fn, valor) {
+  return fn(valor);
+}
+
+console.log(ejecutarFuncion(saludar, "Jochy"));
+// Hola, Jochy
+
+// 3. Retornar una función desde otra función
+function crearMultiplicador(factor) {
+  return function (numero) {
+    return numero * factor;
+  };
+}
+
+const duplicar = crearMultiplicador(2);
+console.log(duplicar(5));
+// 10
+```
 
 ---
 
