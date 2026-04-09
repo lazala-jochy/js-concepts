@@ -6,23 +6,19 @@ Referencia breve sobre el entorno de ejecución, el modelo de concurrencia y uti
 
 ## ¿Qué es Node.js?
 
-Node.js es un **entorno de ejecución** que permite ejecutar código **JavaScript fuera del navegador**, principalmente en el **servidor**. Está pensado para construir aplicaciones **rápidas y escalables**, sobre todo **APIs** y **servicios en tiempo real**.
+Node.js es un **entorno de ejecución de JavaScript del lado del servidor**, construido sobre el motor **V8** de Google. Permite ejecutar código JavaScript **fuera del navegador** y está pensado para aplicaciones **escalables** y de **alto rendimiento**.
 
----
+## Modelo asíncrono y hilo principal
 
-## Single-threaded pero non-blocking
+Funciona con un modelo **asíncrono**, **no bloqueante** y **basado en eventos**. En lugar de abrir **un hilo por cada solicitud**, usa **un solo hilo principal** que coordina la ejecución del código JavaScript.
 
-Node.js usa **un solo hilo principal** (*single-threaded*), pero puede atender **muchas operaciones a la vez** gracias a su modelo **no bloqueante** (*non-blocking*).
+## Event loop y libuv
 
-Eso significa que el hilo principal **no se queda bloqueado** esperando a que terminen tareas lentas (por ejemplo leer un archivo o consultar una base de datos): registra el trabajo y **sigue ejecutando** otras cosas mientras la operación se completa **en segundo plano** (I/O asíncrono, colas del *event loop*, etc.).
+El **event loop** gestiona las operaciones asíncronas: escucha eventos y ejecuta los **callbacks** cuando las tareas terminan. Lo que puede **bloquear** o ser costoso (por ejemplo **acceso al sistema de archivos** u operaciones pesadas) se **delega** a **libuv**, que usa un **thread pool** para procesar parte de ese trabajo **en segundo plano** (mientras el modelo lógico de tu código sigue siendo no bloqueante en el hilo principal).
 
----
+## V8 y libuv
 
-## Motor V8
-
-**V8** es el motor de JavaScript desarrollado por **Google** que Node.js utiliza para ejecutar tu código.
-
-Compila JavaScript a **código máquina** de forma muy eficiente, lo que contribuye al **rendimiento** de Node.js.
+El motor **V8** compila JavaScript a **código máquina**, lo que permite una ejecución **rápida**. **libuv** aporta la capa de **E/S asíncrona** y **concurrencia** (event loop, thread pool, etc.) de forma eficiente.
 
 ---
 
