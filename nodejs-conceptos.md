@@ -2,27 +2,35 @@
 
 Referencia breve sobre el entorno de ejecución, el modelo de concurrencia y utilidades comunes.
 
+## Tabla de contenidos
+
+- [¿Qué es Node.js?](#qué-es-nodejs)
+- [Modelo asíncrono, event loop y escalabilidad](#modelo-asíncrono-event-loop-y-escalabilidad)
+- [Objetos globales](#objetos-globales)
+  - [`process`](#process)
+  - [`__dirname`](#__dirname)
+
 ---
 
 ## ¿Qué es Node.js?
 
-Node.js es un **entorno de ejecución de JavaScript del lado del servidor**, construido sobre el motor **V8** de Google. Permite ejecutar código JavaScript **fuera del navegador** y está pensado para aplicaciones **escalables** y de **alto rendimiento**.
+Node.js es un **entorno de ejecución de JavaScript del lado del servidor** basado en el motor **V8** de Chrome.
 
-## Modelo asíncrono y hilo principal
-
-Funciona con un modelo **asíncrono**, **no bloqueante** y **basado en eventos**. En lugar de abrir **un hilo por cada solicitud**, usa **un solo hilo principal** que coordina la ejecución del código JavaScript.
-
-## Event loop y libuv
-
-El **event loop** gestiona las operaciones asíncronas: escucha eventos y ejecuta los **callbacks** cuando las tareas terminan. Lo que puede **bloquear** o ser costoso (por ejemplo **acceso al sistema de archivos** u operaciones pesadas) se **delega** a **libuv**, que usa un **thread pool** para procesar parte de ese trabajo **en segundo plano** (mientras el modelo lógico de tu código sigue siendo no bloqueante en el hilo principal).
-
-## V8 y libuv
-
-El motor **V8** compila JavaScript a **código máquina**, lo que permite una ejecución **rápida**. **libuv** aporta la capa de **E/S asíncrona** y **concurrencia** (event loop, thread pool, etc.) de forma eficiente.
+Proporciona acceso a **APIs** de bajo nivel, como **sistemas de archivos**, **redes** y **procesos**.
 
 ---
 
-## Objetos globales (`process`, `__dirname`)
+## Modelo asíncrono, event loop y escalabilidad
+
+Utiliza un modelo de **E/S asíncrono** y **basado en eventos**.
+
+El **bucle de eventos** (*event loop*) gestiona las tareas asíncronas; las **operaciones de bloqueo** se envían al **grupo de subprocesos** (*thread pool*) de **libuv**.
+
+Este modelo permite la escalabilidad **sin necesidad de multihilo**.
+
+---
+
+## Objetos globales
 
 Node.js expone identificadores **globales** sin importarlos en muchos proyectos. `process` está disponible de forma uniforme; `__dirname` es directo en **CommonJS** (`require`). En **módulos ES** (`import`) a menudo se deriva de `import.meta.url`.
 
