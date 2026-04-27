@@ -1,25 +1,23 @@
-# Guía de conceptos JavaScript
+# JavaScript Concepts Guide
 
-Documento de referencia para estudiar **fundamentos**, **funcionamiento interno**, **estructuras**, **asincronía**, **navegador** y **temas avanzados**. Pensado para consulta rápida y estudio profundo.
+> A reference document for studying **fundamentals**, **internals**, **data structures**, **async**, **the browser**, and **advanced topics**. Built for quick lookup and deep study.
 
 ---
 
-## Tabla de contenidos
+## Table of Contents
 
-### [FUNDAMENTOS](#fundamentos)
-
+### [Fundamentals](#fundamentals)
 - [Variables (`var`, `let`, `const`)](#variables-var-let-const)
-- [Tipos de datos](#tipos-de-datos)
-- [Value vs Reference en JavaScript](#value-vs-reference-en-javascript)
-- [Operadores](#operadores)
-- [Condicionales (`if`, `else`, `switch`)](#condicionales-if-else-switch)
-- [Bucles (`for`, `while`, `do while`)](#bucles-for-while-do-while)
-- [Funciones (declaración, expresión, arrow)](#funciones-declaración-expresión-arrow)
-- [Funciones de primera clase (`first-class`)](#funciones-de-primera-clase-first-class)
+- [Data types](#data-types)
+- [Value vs Reference](#value-vs-reference)
+- [Operators](#operators)
+- [Conditionals](#conditionals)
+- [Loops](#loops)
+- [Functions](#functions)
+- [First-class functions](#first-class-functions)
 
-### [FUNCIONAMIENTO INTERNO](#funcionamiento-interno)
-
-- [Scope (global, local, block)](#scope-global-local-block)
+### [Internals](#internals)
+- [Scope](#scope)
 - [Hoisting](#hoisting)
 - [Closures](#closures)
 - [Call Stack](#call-stack)
@@ -27,534 +25,455 @@ Documento de referencia para estudiar **fundamentos**, **funcionamiento interno*
 - [Execution Context](#execution-context)
 - [Memory Heap](#memory-heap)
 
-### [ESTRUCTURAS Y MÉTODOS](#estructuras-y-métodos)
-
-- [Objetos](#objetos)
+### [Structures & Methods](#structures--methods)
+- [Objects](#objects)
 - [Arrays](#arrays)
 - [Destructuring](#destructuring)
 - [Spread / Rest](#spread--rest)
-- [Métodos de arrays (`map`, `filter`, `reduce`, `forEach`)](#métodos-de-arrays-map-filter-reduce-foreach)
-- [Métodos de objetos (`Object.keys`, `Object.values`, etc.)](#métodos-de-objetos-objectkeys-objectvalues-etc)
+- [Array methods](#array-methods-map-filter-reduce-foreach)
+- [Object methods](#object-methods)
 
-### [ASINCRONÍA](#asincronía)
-
+### [Async](#async)
 - [Callbacks](#callbacks)
 - [Promises](#promises)
-- [`async` / `await`](#async--await)
-- [Manejo de errores (`try` / `catch`)](#manejo-de-errores-try--catch)
-- [`Promise.all`](#promiseall)
-- [`Promise.allSettled`](#promiseallsettled)
-- [`Promise.race`](#promiserace)
+- [async / await](#async--await)
+- [Error handling](#error-handling)
+- [Promise combinators](#promise-combinators)
 
-### [DOM Y NAVEGADOR](#dom-y-navegador)
-
+### [DOM & Browser](#dom--browser)
 - [DOM manipulation](#dom-manipulation)
 - [Event listeners](#event-listeners)
 - [Event bubbling / capturing](#event-bubbling--capturing)
 - [Fetch API](#fetch-api)
-- [`LocalStorage` / `SessionStorage`](#localstorage--sessionstorage)
+- [Web Storage](#web-storage)
 
-### [JAVASCRIPT AVANZADO](#javascript-avanzado)
-
+### [Advanced](#advanced)
 - [`this`](#this)
-- [Prototipos](#prototipos-en-javascript)
-- [Herencia prototipal](#herencia-prototipal)
-- [Clases (`class`)](#clases-class)
-- [Encapsulación](#encapsulación)
-- [Inmutabilidad](#inmutabilidad)
+- [Prototypes](#prototypes)
+- [Prototypal inheritance](#prototypal-inheritance)
+- [Classes](#classes)
+- [Encapsulation](#encapsulation)
+- [Immutability](#immutability)
 - [Currying](#currying)
-- [Funciones puras](#funciones-puras)
+- [Pure functions](#pure-functions)
 
 ---
 
-## FUNDAMENTOS
+## Fundamentals
 
 ### Variables (`var`, `let`, `const`)
 
-Las variables en JavaScript se pueden declarar usando `var`, `let` o `const`. Cada una tiene diferencias importantes en ámbito (*scope*), re-declaración, reasignación y comportamiento interno.
+JavaScript has three ways to declare variables. Each differs in **scope**, **hoisting behavior**, and **reassignment rules**.
 
-#### Comparación rápida
+| | `var` | `let` | `const` |
+|---|---|---|---|
+| Scope | Function | Block `{}` | Block `{}` |
+| Redeclaration | Yes | No | No |
+| Reassignment | Yes | Yes | No |
+| Hoisting | `undefined` | TDZ error | TDZ error |
 
-| Declaración | Ámbito (Scope) | Redeclaración | Reasignación | Comportamiento especial |
-|-------------|----------------|---------------|--------------|-------------------------|
-| `var` | Función o global | ✅ Sí | ✅ Sí | **Hoisting**: se eleva y se inicializa como `undefined` |
-| `let` | Bloque `{}` | ❌ No | ✅ Sí | **Temporal Dead Zone (TDZ)** |
-| `const` | Bloque `{}` | ❌ No | ❌ No | Referencia constante (no se puede reasignar) |
+#### Scope
 
-#### Conceptos clave
-
-**1. Ámbito (Scope)**
-
-`var` tiene ámbito de función, no respeta bloques `{}`. `let` y `const` tienen ámbito de bloque.
+`var` is function-scoped — it ignores `if`, `for`, and other blocks. `let` and `const` are block-scoped.
 
 ```js
 if (true) {
   var a = 10;
   let b = 20;
+  const c = 30;
 }
 
-console.log(a); // 10
+console.log(a); // 10   — var leaked out of the block
 console.log(b); // ReferenceError
+console.log(c); // ReferenceError
 ```
 
-**2. Hoisting**
+#### Hoisting
 
-El *hoisting* significa que las declaraciones se "mueven" al inicio de su contexto.
-
-*`var`*
+All declarations are processed before code runs. The difference is what value they hold until the declaration line is reached.
 
 ```js
-console.log(x); // undefined
+// var is hoisted and initialized as undefined
+console.log(x); // undefined (no error)
 var x = 5;
-```
 
-Internamente:
-
-```js
-var x;
-console.log(x); // undefined
-x = 5;
-```
-
-*`let` y `const` (TDZ)*
-
-```js
-console.log(y); // ReferenceError
+// let/const are hoisted but stay in the Temporal Dead Zone (TDZ)
+console.log(y); // ReferenceError: Cannot access 'y' before initialization
 let y = 10;
 ```
 
-Esto ocurre por la **Temporal Dead Zone (TDZ)**: la variable existe, pero no se puede usar antes de su declaración.
-
-**3. Reasignación vs redeclaración**
+Internally, JavaScript treats your `var` code like this:
 
 ```js
-let a = 1;
-a = 2; // permitido
-
-let a = 3; // Error: no se puede redeclarar en el mismo bloque
-
-var b = 1;
-var b = 2; // permitido (puede causar errores difíciles de detectar)
+var x;          // declaration hoisted
+console.log(x); // undefined
+x = 5;          // assignment stays in place
 ```
 
-**4. `const` y mutabilidad**
+#### Temporal Dead Zone (TDZ)
 
-**🧠 La idea principal**
-
-`const` **no** hace el objeto inmutable. Lo que hace es **proteger la referencia**, no el contenido.
-
-**🔗 ¿Qué significa “referencia”?**
-
-Cuando haces esto:
+`let` and `const` exist from the start of their block but cannot be accessed until the declaration line. Accessing them before that throws a `ReferenceError`.
 
 ```js
-const obj = { n: 1 };
-```
+{
+  // TDZ starts here for 'name'
+  console.log(name); // ReferenceError
 
-`obj` no contiene el objeto directamente: guarda una **referencia** (una dirección en memoria) al objeto. Es como si `obj` fuera un puntero hacia ese objeto.
-
-**🔒 ¿Qué bloquea `const`?**
-
-`const` impide **cambiar esa referencia**:
-
-```js
-const obj = { n: 1 };
-
-obj = { n: 2 }; // Error
-```
-
-Porque estás intentando que `obj` apunte a **otro** objeto distinto.
-
-**🔓 ¿Qué sí permite?**
-
-Modificar el contenido **dentro del mismo** objeto:
-
-```js
-const obj = { n: 1 };
-
-obj.n = 2; // válido
-```
-
-Aquí la referencia es la misma; solo cambias lo que hay dentro.
-
-**📦 Ejemplo con memoria (modelo mental)**
-
-```text
-obj ─────► { n: 1 }
-```
-
-Después de `obj.n = 2;`:
-
-```text
-obj ─────► { n: 2 }
-```
-
-La flecha (referencia) no cambió; solo cambió el contenido.
-
-**🚫 Pero esto sí rompe la regla**
-
-```js
-obj = { n: 3 }; // Error
-```
-
-Sería otra flecha hacia otro objeto: cambiaste la referencia.
-
-**🧊 ¿Cómo hacer un objeto realmente inmutable?**
-
-Puedes usar:
-
-```js
-const obj = Object.freeze({ n: 1 });
-
-obj.n = 2; // no cambia el valor; en modo estricto lanza TypeError
-```
-
-`Object.freeze` es **superficial** (*shallow*): no congela objetos anidados.
-
-Con **arrays** pasa lo mismo que con objetos: no reasignas el enlace, pero sí puedes mutar el contenido del mismo array.
-
-```js
-const arr = [1, 2, 3];
-
-arr.push(4); // válido
-arr = []; // Error
-```
-
-**🧾 Resumen simple**
-
-- `const` = no puedes cambiar **a dónde apunta** la variable.
-- Sí puedes cambiar **lo que hay dentro** (en objetos y arrays), porque se manejan por **referencia**.
-
-#### Buenas prácticas
-
-- Usa `const` por defecto.
-- Usa `let` solo cuando necesites reasignar.
-- Evita `var` en código moderno.
-- Declara las variables lo más cerca posible de donde se usan.
-- Prefiere nombres descriptivos.
-
-#### Ejemplo completo
-
-```js
-function example() {
-  if (true) {
-    var x = 1;
-    let y = 2;
-    const z = { n: 3 };
-
-    y = 20;
-    z.n = 30;
-  }
-
-  console.log(x); // 1
-  console.log(y); // ReferenceError
+  let name = "Ana"; // TDZ ends here
+  console.log(name); // "Ana"
 }
 ```
 
-#### Resumen
+#### `const` and mutability
 
-- **`var`**: antiguo, flexible pero propenso a errores.
-- **`let`**: moderno, permite cambios controlados.
-- **`const`**: moderno, evita reasignaciones accidentales.
-
----
-
-### Tipos de datos
-
-JavaScript es **dinámicamente tipado**: el tipo se asocia al valor, no a la variable.
-
-**Tipos primitivos**
-
-- `undefined`, `null`, `boolean`, `number`, `bigint`, `string`, `symbol`
-
-**Todo lo demás es objeto**
-
-- Incluye arrays, funciones, fechas, etc.
-
-**Comportamiento**
-
-- **Primitivos**: se **copian por valor**; son **inmutables** en el sentido de que no “modificas” el valor en el sitio (reasignas otra cosa).
-- **Referencia** (objetos): comparten **identidad**; `===` compara la **referencia**, no una igualdad profunda del contenido.
-
-**Ejemplo**
+`const` protects the **reference**, not the value. You cannot point the variable at a new object, but you can modify the object it already points to.
 
 ```js
-typeof 42; // "number"
-typeof "hola"; // "string"
-const a = [1, 2];
-const b = a;
-a === b; // true (misma referencia)
+const user = { name: "Ana" };
+
+user.name = "Luis"; // valid — same object, different content
+user = {};          // TypeError — you're changing the reference
+
+const nums = [1, 2, 3];
+nums.push(4);  // valid
+nums = [];     // TypeError
 ```
 
-**Notas clave**
+To make an object truly immutable, use `Object.freeze()`:
 
-- `typeof null` es `"object"` por razones históricas del lenguaje; para comprobar `null` usa comparación explícita (`value === null`).
+```js
+const config = Object.freeze({ debug: false });
+config.debug = true; // silently ignored (TypeError in strict mode)
+```
+
+> `Object.freeze` is shallow — nested objects are still mutable.
+
+#### Best practices
+
+- Use `const` by default.
+- Use `let` only when you need to reassign.
+- Avoid `var` in modern code — its function scope and hoisting behavior cause subtle bugs.
+- Declare variables as close as possible to where they are used.
 
 ---
 
-### Value vs Reference en JavaScript
+### Data types
 
-**🧠 Idea central:** en JavaScript los primitivos se comportan como **valor** y los objetos como **referencia**; al pasar argumentos a una función, lo que se copia es siempre un valor (que, para objetos, es la referencia).
+JavaScript is **dynamically typed** — types are associated with values, not variables.
 
-#### 🔹 1. Variable por valor (*pass by value*)
+#### Primitives (7 types)
 
-Una variable **guarda el valor directamente**. Cuando la copias, se crea una **copia independiente**.
+```js
+undefined   // a variable that has not been assigned
+null        // intentional absence of value
+boolean     // true or false
+number      // 64-bit float: 42, 3.14, NaN, Infinity
+bigint      // arbitrary precision integer: 9007199254740993n
+string      // "hello", 'world', `template ${literal}`
+symbol      // unique, non-colliding identifier: Symbol("id")
+```
+
+Primitives are **immutable** and **compared by value**.
+
+#### Objects (everything else)
+
+Arrays, functions, dates, maps, sets, and plain objects `{}` are all objects. Objects are **mutable** and **compared by reference**.
+
+```js
+typeof 42;          // "number"
+typeof "hi";        // "string"
+typeof true;        // "boolean"
+typeof undefined;   // "undefined"
+typeof null;        // "object"  ← historical bug in JS, not fixable
+typeof [];          // "object"
+typeof function(){}; // "function"
+typeof Symbol();    // "symbol"
+typeof 42n;         // "bigint"
+```
+
+> To check for `null`, use strict equality: `value === null`. `typeof null` returns `"object"`, which is misleading.
+
+---
+
+### Value vs Reference
+
+When you work with primitives, JavaScript copies the **value**. When you work with objects, JavaScript copies the **reference** (a pointer to the same memory location).
+
+#### Primitives — copy by value
 
 ```js
 let a = 10;
-let b = a;
+let b = a; // b gets a copy of the value
 
 b = 20;
 
-console.log(a); // 10
+console.log(a); // 10 — unchanged
 console.log(b); // 20
 ```
 
-`a` y `b` son dos valores separados; cambiar `b` no afecta a `a`.
-
-#### 🔹 2. Variable por referencia (*pass by reference*, en la práctica)
-
-La variable guarda una **referencia** (dirección en memoria) al objeto. Cuando “copias” la variable, **ambas apuntan al mismo objeto**.
+#### Objects — copy by reference
 
 ```js
-const obj1 = { value: 10 };
-const obj2 = obj1;
+const obj1 = { score: 10 };
+const obj2 = obj1; // obj2 points to the SAME object
 
-obj2.value = 20;
+obj2.score = 99;
 
-console.log(obj1.value); // 20
-console.log(obj2.value); // 20
+console.log(obj1.score); // 99 — both variables see the change
+console.log(obj2.score); // 99
 ```
 
-`obj1` y `obj2` apuntan al **mismo** objeto; cambiar uno se refleja en el otro.
+```
+obj1 ──┐
+       ├──► { score: 99 }
+obj2 ──┘
+```
 
-#### 🔍 Diferencia clave
-
-| Tipo | Qué se copia | ¿Afecta al original? |
-|------|--------------|----------------------|
-| Por valor | El valor | No |
-| Por referencia | La referencia (memoria) | Sí |
-
-#### 📦 Tipos en JavaScript
-
-**Primitivos → por valor**
-
-`number`, `string`, `boolean`, `null`, `undefined`, `symbol`, `bigint`
+#### How to copy an object without sharing it
 
 ```js
-let x = "hello";
-let y = x;
+// Shallow copy (one level deep)
+const copy = { ...original };
+const copy = Object.assign({}, original);
 
-y = "bye";
-
-console.log(x); // "hello"
+// Deep copy (all levels)
+const deep = structuredClone(original);
 ```
 
-**Objetos → por referencia**
-
-Incluye `object`, `array`, `function` y, en general, todo lo que no es primitivo.
-
-```js
-const arr1 = [1, 2];
-const arr2 = arr1;
-
-arr2.push(3);
-
-console.log(arr1); // [1, 2, 3]
-```
-
-#### ⚠️ Importante (esto confunde mucho)
-
-JavaScript **no** es *pass by reference* “puro” en el sentido de otros lenguajes: en la práctica se habla de **pass by value of the reference** (*call by sharing*): **se copia la referencia** como valor, no “el mismo identificador” del llamado. Dos variables pueden compartir el mismo objeto en memoria.
-
-#### 🧾 Resumen simple
-
-- **Primitivos** → copias el **valor**.
-- **Objetos** → copias la **referencia**; por eso los objetos se **comparten** entre variables.
+> Arrays behave the same way: `const b = a` shares the array, `const b = [...a]` makes a shallow copy.
 
 ---
 
-### Operadores
+### Operators
 
-- **Aritméticos**: `+`, `-`, `*`, `/`, `%`, `**` (exponenciación).
-- **Asignación**: `=`, `+=`, `-=`, etc.
-- **Comparación**
-  - `==` / `!=`: con **coerción** de tipos.
-  - `===` / `!==`: **estrictos** (sin coerción); uso **recomendado** en código moderno.
-- **Lógicos**: `&&`, `||`, `!`.
-- **Nullish coalescing**: `??` — el valor de la derecha solo se usa si la izquierda es **`null`** o **`undefined`** (no trata `0` ni `""` como “ausencia”, a diferencia de `||` en muchos casos).
-- **Incremento / decremento**: `++`, `--` (prefijo y sufijo cambian el **valor devuelto** en la expresión).
-- **Otros útiles**: `typeof`, `instanceof`, ternario `cond ? a : b`, optional chaining `?.`
+#### Equality: `==` vs `===`
 
-**Ejemplo**
+`===` (strict) checks value AND type — always prefer it. `==` coerces types, which produces surprising results.
 
 ```js
-const edad = 18;
-const puedeVotar = edad >= 18 ? "sí" : "no";
-const nombre = null;
-const display = nombre ?? "anónimo"; // solo null/undefined usan el default
+0 == "0"   // true  — type coercion converts string to number
+0 === "0"  // false — different types
+
+null == undefined  // true
+null === undefined // false
+
+NaN === NaN // false — NaN is never equal to itself
+Number.isNaN(NaN) // true — correct way to check
 ```
 
-**Errores comunes**
+#### Logical operators
 
-- `==` puede producir comparaciones sorprendentes por coerción; prefiere `===` salvo que tengas un motivo muy claro.
+```js
+// && returns the first falsy value, or the last value if all are truthy
+true && "hello" // "hello"
+null && "hello" // null
+
+// || returns the first truthy value, or the last value if all are falsy
+null || "default"  // "default"
+"hello" || "default" // "hello"
+
+// ?? (nullish coalescing) — only triggers on null or undefined
+0 ?? "default"     // 0     ← 0 is not null/undefined
+null ?? "default"  // "default"
+```
+
+#### Optional chaining `?.`
+
+Safely access nested properties without crashing on `null` or `undefined`.
+
+```js
+const user = null;
+
+user.address.city       // TypeError — crashes
+user?.address?.city     // undefined — safe
+
+user?.getProfile?.()    // also works on method calls
+```
+
+#### Ternary
+
+```js
+const label = age >= 18 ? "adult" : "minor";
+```
 
 ---
 
-### Condicionales (`if`, `else`, `switch`)
+### Conditionals
 
-**`if` / `else if` / `else`**
-
-- Ejecuta bloques según condiciones; la condición se **coerciona a booleano** de forma implícita si no usas comparaciones explícitas.
-
-**`switch`**
-
-- Compara una expresión con varios `case` (en la práctica habitual de JS, equivalencia **estricta** respecto al valor del `switch`).
-- Usa **`break`** para no **caer** (*fall-through*) al siguiente `case`.
-- **`default`**: rama cuando no coincide ningún `case`.
-
-**Ejemplo**
+#### `if / else if / else`
 
 ```js
-const rol = "admin";
-if (rol === "admin") {
-  console.log("acceso total");
-} else if (rol === "user") {
-  console.log("acceso limitado");
+const role = "editor";
+
+if (role === "admin") {
+  console.log("full access");
+} else if (role === "editor") {
+  console.log("can edit");
 } else {
-  console.log("invitado");
+  console.log("read only");
 }
+```
 
-switch (rol) {
+#### `switch`
+
+Use `switch` when comparing one value against many fixed cases. Always add `break` — without it, execution falls through to the next case.
+
+```js
+switch (role) {
   case "admin":
-    console.log("admin");
+    console.log("full access");
+    break;
+  case "editor":
+    console.log("can edit");
     break;
   default:
-    console.log("otro");
+    console.log("read only");
 }
 ```
 
-**Notas clave**
-
-- Sin `break`, el flujo continúa en el siguiente `case` (a veces es intencional, pero suele ser fuente de bugs).
+> Intentional fall-through (no `break`) is valid but should be clearly commented so it does not look like a bug.
 
 ---
 
-### Bucles (`for`, `while`, `do while`)
-
-- **`for`**: inicialización, condición y actualización en una sola cabecera; adecuado cuando controlas o conoces bien el número de iteraciones.
-- **`while`**: evalúa la condición **antes** de cada iteración; el cuerpo puede **no ejecutarse nunca**.
-- **`do...while`**: ejecuta **al menos una vez** y luego evalúa la condición.
-
-**Variantes de iteración**
-
-- **`for...of`**: sobre **iterables** (valores).
-- **`for...in`**: sobre **claves enumerables** de objetos; **cuidado** con propiedades **heredadas** de la cadena de prototipos (filtra con `hasOwn` / `Object.hasOwn` cuando corresponda).
-
-**Ejemplo**
+### Loops
 
 ```js
-for (let i = 0; i < 3; i++) console.log(i);
+// Classic for — when you control the counter
+for (let i = 0; i < 5; i++) {
+  console.log(i);
+}
 
+// while — condition checked before each iteration
 let n = 0;
-while (n < 2) {
+while (n < 3) {
   n++;
 }
 
-let m = 0;
+// do...while — body runs at least once
 do {
-  m++;
-} while (m < 1);
+  n++;
+} while (n < 1);
 
-for (const v of [10, 20]) console.log(v);
+// for...of — iterate over values of any iterable
+for (const item of ["a", "b", "c"]) {
+  console.log(item);
+}
+
+// for...in — iterate over enumerable keys of an object
+const obj = { x: 1, y: 2 };
+for (const key in obj) {
+  console.log(key, obj[key]);
+}
 ```
+
+> Avoid `for...in` on arrays — it iterates keys (as strings) and can pick up inherited properties. Use `for...of` or array methods instead.
 
 ---
 
-### Funciones (declaración, expresión, arrow)
+### Functions
 
-- **Declaración**: `function nombre() {}` — **hoisting** completo del nombre: invocable en todo su ámbito de función antes de la línea textual.
-- **Expresión**: `const f = function() {}` — la variable sigue las reglas de `let`/`const` (no uses antes de declarar).
-- **Arrow**: `const f = () => {}` — **no** tiene `this` propio ni el objeto **`arguments`** de funciones clásicas; **lexical** `this` del entorno donde se definió; muy usadas en callbacks cortos.
-
-**Ejemplo**
+#### Declaration vs expression vs arrow
 
 ```js
-function suma(a, b) {
+// Declaration — hoisted completely, callable before the line
+function add(a, b) {
   return a + b;
 }
 
-const resta = function (a, b) {
+// Expression — not hoisted (follows let/const rules)
+const subtract = function(a, b) {
   return a - b;
 };
 
-const mult = (a, b) => a * b;
+// Arrow — concise, no own `this` or `arguments`
+const multiply = (a, b) => a * b;
+
+// Single expression: implicit return (no braces needed)
+const square = n => n * n;
+
+// Returning an object literal: wrap in parentheses
+const makeUser = name => ({ name, active: true });
 ```
 
-**Notas clave**
+#### Default parameters
 
-- No uses arrow functions como métodos de objeto cuando necesites que `this` sea la instancia (salvo que quieras explícitamente el `this` léxico exterior).
+```js
+function greet(name = "stranger") {
+  return `Hello, ${name}`;
+}
+
+greet();         // "Hello, stranger"
+greet("Ana");    // "Hello, Ana"
+```
+
+#### Rest parameters
+
+```js
+function sum(...numbers) {
+  return numbers.reduce((acc, n) => acc + n, 0);
+}
+
+sum(1, 2, 3, 4); // 10
+```
+
+> Arrow functions do not have their own `this` or `arguments`. Do not use them as object methods when you need `this` to refer to the object.
 
 ---
 
-### Funciones de primera clase (`first-class`)
+### First-class functions
 
-Una **función de primera clase** (*first-class function*) en JavaScript es aquella que se **trata como cualquier otro valor**: puedes guardarla, pasarla y devolverla igual que un número o un string.
-
-Eso implica que una función puede:
-
-- **Asignarse a una variable**
-- **Pasarse como argumento** a otra función
-- **Retornarse** desde otra función
-
-**Ejemplo**
+In JavaScript, functions are values. You can store them in variables, pass them as arguments, and return them from other functions.
 
 ```js
-// 1. Asignar una función a una variable
-const saludar = function (nombre) {
-  return `Hola, ${nombre}`;
-};
+// Store in a variable
+const greet = name => `Hello, ${name}`;
 
-// 2. Pasar una función como argumento
-function ejecutarFuncion(fn, valor) {
-  return fn(valor);
+// Pass as an argument (callback pattern)
+function run(fn, value) {
+  return fn(value);
+}
+run(greet, "Jochy"); // "Hello, Jochy"
+
+// Return from another function (factory pattern)
+function multiplier(factor) {
+  return number => number * factor;
 }
 
-console.log(ejecutarFuncion(saludar, "Jochy"));
-// Hola, Jochy
+const double = multiplier(2);
+const triple = multiplier(3);
 
-// 3. Retornar una función desde otra función
-function crearMultiplicador(factor) {
-  return function (numero) {
-    return numero * factor;
-  };
-}
-
-const duplicar = crearMultiplicador(2);
-console.log(duplicar(5));
-// 10
+double(5); // 10
+triple(5); // 15
 ```
 
 ---
 
-## FUNCIONAMIENTO INTERNO
+## Internals
 
-### Scope (global, local, block)
+### Scope
 
-- **Global**: accesible desde casi todo el programa (p. ej. propiedades de `globalThis` / `window` en navegador).
-- **Local (función)**: variables dentro de una función; **`var`** queda ligado a la **función**, no al bloque.
-- **Bloque**: `let`, `const` y `class` limitados al par de llaves `{}` donde se declaran.
+Scope determines where a variable is visible.
 
-**Ejemplo**
+```
+Global scope
+└── Function scope (var, function declarations)
+    └── Block scope (let, const, class)
+```
 
 ```js
-const enGlobal = 1;
-function demo() {
-  const local = 2;
-  if (true) {
-    const bloque = 3;
-    // bloque solo existe aquí
+const global = "I'm everywhere";
+
+function outer() {
+  const outerVar = "outer";
+
+  function inner() {
+    const innerVar = "inner";
+    console.log(global);   // accessible
+    console.log(outerVar); // accessible (closure)
+    console.log(innerVar); // accessible
   }
+
+  console.log(innerVar); // ReferenceError — not in scope
 }
 ```
 
@@ -562,1154 +481,1059 @@ function demo() {
 
 ### Hoisting
 
-El motor **reorganiza** mentalmente el código: las **declaraciones** se procesan antes de la ejecución línea a línea en su ámbito.
-
-- **`function` declarada**: se puede invocar **antes** en el código (identificador y cuerpo disponibles en el ámbito).
-- **`var`**: el identificador existe desde el inicio del ámbito con valor **`undefined`** hasta la asignación.
-- **`let` / `const`**: el “binding” existe pero entra en **TDZ** hasta la línea de declaración (acceso previo → error).
-
-**Ejemplo**
+JavaScript processes declarations before executing code. Only the **declaration** is hoisted, not the assignment.
 
 ```js
-console.log(hoistedVar); // undefined (var existe, sin valor aún)
-var hoistedVar = 1;
+// function declarations: fully hoisted
+sayHi(); // "hi" — works before the line
 
-antes(); // funciona: la declaración function se eleva completa
-function antes() {
-  console.log("ok");
+function sayHi() {
+  console.log("hi");
 }
+
+// var: hoisted as undefined
+console.log(x); // undefined
+var x = 10;
+
+// let / const: hoisted but in TDZ — error if accessed early
+console.log(y); // ReferenceError
+let y = 10;
+
+// Function expressions: follow variable rules
+greet(); // TypeError: greet is not a function
+var greet = function() { return "hello"; };
 ```
 
 ---
 
 ### Closures
 
-Una **closure** es una función que **conserva** el **entorno léxico** donde se creó: sigue accediendo a variables externas aunque la función externa ya haya terminado. Sirve para **factories**, **módulos** y **estado privado** simulado.
-
-**Ejemplo**
+A closure is a function that **remembers the variables from its outer scope** even after that outer function has finished executing.
 
 ```js
-function crearContador() {
-  let n = 0;
-  return () => ++n;
+function makeCounter() {
+  let count = 0; // private to makeCounter
+
+  return {
+    increment() { return ++count; },
+    decrement() { return --count; },
+    value()     { return count; },
+  };
 }
-const c = crearContador();
-c(); // 1
-c(); // 2
+
+const counter = makeCounter();
+counter.increment(); // 1
+counter.increment(); // 2
+counter.decrement(); // 1
+counter.value();     // 1
+```
+
+Each call to `makeCounter()` creates an independent `count` — closures do not share state unless they share the same outer scope.
+
+**Common use cases:** data privacy, factory functions, memoization, event handlers that remember context.
+
+```js
+// Practical: pre-configured function
+function createLogger(prefix) {
+  return message => console.log(`[${prefix}] ${message}`);
+}
+
+const info = createLogger("INFO");
+const warn = createLogger("WARN");
+
+info("server started"); // [INFO] server started
+warn("disk low");       // [WARN] disk low
 ```
 
 ---
 
 ### Call Stack
 
-Pila de **frames** de ejecución: cada llamada a función **apila** un frame; al retornar, se **desapila**. Recursión sin límite puede provocar **stack overflow**. JavaScript en un hilo usa **un** call stack principal para ese hilo.
-
-**Ejemplo**
+The call stack is a LIFO structure that tracks which function is currently running.
 
 ```js
-function a() {
-  b();
-}
-function b() {
-  c();
-}
-function c() {}
-a(); // call stack: a → b → c, luego se vacía al volver
+function c() { console.log("c"); }
+function b() { c(); }
+function a() { b(); }
+
+a();
+// Stack grows:   a → b → c
+// Stack shrinks: c ← b ← a
+```
+
+When a function is called, a **frame** is pushed. When it returns, the frame is popped. Infinite recursion fills the stack until a **stack overflow** error occurs.
+
+```js
+// Stack overflow
+function recurse() { recurse(); }
+recurse(); // RangeError: Maximum call stack size exceeded
 ```
 
 ---
 
 ### Event Loop
 
-**🧠 Explicación simple**
+JavaScript is single-threaded. The event loop is how it handles async operations without blocking.
 
-JavaScript solo tiene **un hilo** (*single-thread*) → solo puede hacer **una cosa a la vez**.
+**The three queues:**
 
-Entonces, ¿cómo maneja cosas asíncronas como `setTimeout` o `Promise`? Usa el **Event Loop**.
+```
+Call Stack       — synchronous code runs here
+Microtask Queue  — Promise callbacks, queueMicrotask (HIGH priority)
+Macrotask Queue  — setTimeout, setInterval, DOM events (LOWER priority)
+```
 
-#### Las 3 piezas clave
-
-**1. Call Stack (pila de ejecución)**
-
-- Donde se ejecuta el código **síncrono**.
-- Funciona como una pila (**LIFO**).
-
-**2. Task Queue (macrotareas)**
-
-Ejemplos: `setTimeout`, `setInterval`, eventos del DOM.
-
-Van a una cola de macrotareas.
-
-**3. Microtask Queue (microtareas)**
-
-Ejemplos: `Promise.then`, `queueMicrotask`.
-
-Tienen **más prioridad** que la cola de macrotareas.
-
-#### ¿Qué hace el Event Loop?
-
-**Regla clave:** cuando el **call stack** está vacío, el Event Loop:
-
-1. Ejecuta **todas** las microtareas pendientes.
-2. Luego ejecuta **una** macrotarea.
-3. Repite.
-
-#### Ejemplo paso a paso
+**The rule:** when the call stack is empty, drain ALL microtasks first, then take ONE macrotask, then repeat.
 
 ```js
-console.log("A");
+console.log("A"); // sync
 
-setTimeout(() => console.log("B"), 0);
+setTimeout(() => console.log("B"), 0); // macrotask
 
-Promise.resolve().then(() => console.log("C"));
+Promise.resolve()
+  .then(() => console.log("C"));       // microtask
 
-console.log("D");
+console.log("D"); // sync
+
+// Output: A → D → C → B
 ```
 
-**Ejecución (paso a paso)**
+**Why `setTimeout(fn, 0)` is not instant:** "0ms" means "add to macrotask queue". It still waits for the call stack to empty AND all microtasks to drain.
 
-**1. Código síncrono primero**
+```js
+// Microtasks always beat macrotasks
+Promise.resolve().then(() => {
+  console.log("microtask 1");
+  Promise.resolve().then(() => console.log("microtask 2")); // also runs before macrotask
+});
 
-- `console.log("A")` → imprime `A`.
-- `console.log("D")` → imprime `D`.
+setTimeout(() => console.log("macrotask"), 0);
 
-Salida hasta aquí: `A`, luego `D`.
-
-**2. Lo asíncrono**
-
-- `setTimeout` → el callback va a la **cola de macrotareas**.
-- `Promise.then` → el callback va a la **cola de microtareas**.
-
-**3. Stack vacío → entra el Event Loop**
-
-Primero se drenan las **microtareas** → imprime `C`.
-
-**4. Después, macrotareas**
-
-Imprime `B`.
-
-**Resultado final:** `A`, `D`, `C`, `B`.
-
-#### Regla de oro
-
-Las **microtareas siempre** se ejecutan **antes** que las macrotareas, **aunque** el `setTimeout` tenga `0` ms.
-
-#### Visual rápido
-
-```text
-Call stack vacío
-       ↓
-Microtareas (Promise, queueMicrotask) → primero
-       ↓
-Macrotareas (setTimeout, DOM, …) → después
+// microtask 1 → microtask 2 → macrotask
 ```
-
-#### Error común
-
-Pensar que `setTimeout(..., 0)` se ejecuta “al instante”. **No** es inmediato: solo significa “cuando puedas” (stack vacío y **después** de haber vaciado las microtareas).
-
-#### Resumen simple
-
-- JS ejecuta primero lo **síncrono**.
-- Luego: **microtareas** (promesas, `queueMicrotask`) y después **macrotareas** (`setTimeout`, etc.).
-- El Event Loop **repite** este ciclo constantemente.
 
 ---
 
 ### Execution Context
 
-**🧠 Idea simple:** un **Execution Context** es **el lugar donde JavaScript ejecuta tu código**.
+Every time JavaScript runs code, it creates an **execution context** — the environment where that code runs.
 
-#### 🔧 ¿Qué hay dentro?
+An execution context contains:
+- `this` — what the current receiver is
+- Variables — local bindings
+- Scope chain — access to outer scopes
 
-Cada contexto incluye, en esencia:
-
-- **`this`** → quién está “activo” como receptor de la llamada (según **cómo** invocas la función).
-- **Variables** → enlaces que declaras (`let`, `const`, `var`, parámetros, etc.).
-- **Scope** / **entorno léxico** → a qué variables puede acceder (cadena de *scopes*).
-
-*(Hay más detalle en motores reales — p. ej. fase de creación vs ejecución — pero este modelo sirve para razonar el día a día.)*
-
-#### 🔁 Tipos (muy simple)
-
-**🌍 1. Global**
-
-- Se crea cuando arranca el programa.
-- Solo hay **uno** (el contexto global de ese programa / *realm*).
-- En el navegador suele asociarse al objeto global (`globalThis` / `window`).
-
-**⚙️ 2. Función**
-
-- Se crea en cada **invocación** de una función (cada llamada puede tener su propio contexto).
-
-#### 📌 Ejemplo fácil
+**Types:**
+- **Global** — created once when the program starts
+- **Function** — created on every function call
+- **Eval** — (avoid)
 
 ```js
-const o = {
-  x: 1,
-  m() {
-    return this.x;
-  },
+const obj = {
+  x: 10,
+  getX() { return this.x; }, // `this` = obj when called as obj.getX()
 };
 
-o.m(); // 1
+obj.getX(); // 10
+
+// Extract the method — context is lost
+const fn = obj.getX;
+fn(); // undefined (strict mode) or window.x (non-strict)
+
+// Fix: bind the context
+const bound = obj.getX.bind(obj);
+bound(); // 10
 ```
 
-#### 🧩 ¿Qué pasa aquí?
-
-Llamas `o.m()` → se crea un contexto de función donde **`this`** queda ligado a **`o`**. Por eso `return this.x` devuelve `1`.
-
-#### ⚠️ Ejemplo importante (método extraído)
-
-```js
-const o = {
-  x: 1,
-  m() {
-    return this.x;
-  },
-};
-
-const fn = o.m;
-fn();
-```
-
-#### 😵 ¿Por qué falla?
-
-Aquí **no** llamas `o.m()`, sino `fn()` (función suelta). **`this`** ya **no** es `o`: en **modo estricto** suele ser `undefined` (y en modo no estricto, el objeto global — otro detalle que explica bugs silenciosos).
-
-#### 🔥 Regla clave
-
-**`this` depende de cómo llamas la función**, no de dónde está escrita en el código.
-
-#### 🧾 Resumen corto
-
-- **Execution Context** = el entorno donde corre ese trozo de código.
-- Hay **uno global** y **uno por cada invocación** de función (en este modelo simplificado).
-- Incluye **`this`**, variables locales y acceso vía **scope**.
-- **`this` cambia** según la forma de la llamada (`obj.metodo()`, `fn()`, `call`/`apply`/`bind`, `new`, etc.).
+> `this` is determined by **how** a function is called, not where it is defined.
 
 ---
 
 ### Memory Heap
 
-**🧠 Idea simple:** el **Memory Heap** es el lugar en memoria donde viven los **objetos** y los datos dinámicos “grandes” (en el modelo mental habitual: todo lo que no es un primitivo ligado directamente al frame).
+The heap is where JavaScript stores objects, arrays, and other dynamic data. Primitives and references (pointers) live on the stack frame; the actual object data lives on the heap.
 
-#### 🔧 ¿Cómo funciona?
-
-JavaScript (en la práctica del motor) combina dos zonas:
-
-**1. Stack (rápido, por frame)**
-
-- Valores primitivos locales y metadatos del frame.
-- **Referencias** (punteros) hacia lo que vive en el heap.
-
-**2. Heap (memoria dinámica)**
-
-- Objetos `{}`, arrays `[]`, funciones como valores, etc.
-
-Lo “complejo” o de tamaño variable suele vivir en el **heap**; el **stack** guarda referencias y el trabajo síncrono de la llamada actual.
-
-#### 📦 Ejemplo simple
-
-```js
-const obj = { name: "Jochy" };
+```
+Stack frame          Heap
+──────────────       ───────────────────
+user ──────────────► { name: "Ana" }
+nums ──────────────► [1, 2, 3]
 ```
 
-- `obj` (el **enlace** / variable local) vive en el **stack** (del frame actual).
-- El objeto `{ name: "Jochy" }` vive en el **heap**.
-- `obj` **apunta** a ese objeto.
-
-#### 🧹 Garbage Collector (limpieza automática)
-
-El motor **libera memoria automáticamente** cuando los valores ya no son **alcanzables** (nadie puede llegar a ellos desde el código en ejecución).
+**Garbage collection:** JavaScript automatically frees memory when values become unreachable (no references pointing to them).
 
 ```js
-let obj = { name: "Jochy" };
-
-obj = null;
+let obj = { data: "big" };
+obj = null; // original object is now unreachable → GC can free it
 ```
 
-Si no queda ninguna otra referencia al objeto `{ name: "Jochy" }`, el **garbage collector** puede reclamar ese espacio del heap.
-
-#### 🔥 Parte importante: closures
-
-Aquí suele confundirse la gente.
+**Closures and memory leaks:** a closure keeps its outer variables alive as long as the inner function exists.
 
 ```js
-function f() {
-  const grande = new Array(1e6).fill(0);
-  return () => grande[0];
+function load() {
+  const huge = new Array(1_000_000).fill(0); // lives on the heap
+  return () => huge[0]; // closure keeps huge alive
 }
 
-const g = f();
+const fn = load(); // huge is NOT garbage collected while fn exists
+fn = null;         // now huge can be collected
 ```
-
-#### 🧩 ¿Qué pasa aquí?
-
-- Se crea `grande` (un array grande en el **heap**).
-- Se devuelve una función que **cierra** sobre `grande`: `() => grande[0]`.
-
-Esa función **recuerda** `grande` a través del **entorno léxico** (closure).
-
-#### 🤯 ¿Por qué no se borra el array?
-
-Aunque `f()` ya terminó, **`g` sigue usando** `grande` (indirectamente: la función retornada lo referencia). Mientras `g` exista y sea alcanzable, **`grande` sigue en memoria** y el GC **no** puede eliminarlo.
-
-#### 🧠 Idea clave
-
-Una **closure** mantiene **vivas** las variables del entorno que la función necesita. **Mientras la función interna exista y esté referenciada**, esos datos del heap pueden seguir ocupando memoria.
-
-#### ⚠️ Esto puede causar problemas
-
-Si creas muchas closures que capturan datos grandes:
-
-```js
-const g1 = f();
-const g2 = f();
-const g3 = f();
-```
-
-Cada llamada a `f()` puede dejar **otro** array grande en el heap mientras la closure correspondiente siga viva.
-
-#### 🧾 Resumen simple
-
-- **Heap** = donde viven objetos, arrays y valores dinámicos “pesados”.
-- **Stack** = frames de llamada; referencias y primitivos locales (modelo mental).
-- **Garbage Collector** = elimina lo **inalcanzable**.
-- **Closures** = pueden **impedir** que se libere memoria mientras la función que captura siga referenciada.
 
 ---
 
-## ESTRUCTURAS Y MÉTODOS
+## Structures & Methods
 
-### Objetos
-
-Colecciones de **pares clave-valor**. Claves habituales: **strings** o **symbols**. Valores: cualquier tipo. Acceso: `obj.prop` o `obj["prop"]`.
-
-**Ejemplo**
+### Objects
 
 ```js
-const user = { name: "Ana", edad: 30 };
-user.name;
-user["edad"];
+const user = {
+  name: "Ana",
+  age: 30,
+  greet() {
+    return `Hi, I'm ${this.name}`;
+  },
+};
+
+// Access
+user.name;       // dot notation
+user["age"];     // bracket notation (useful for dynamic keys)
+
+// Add / update / delete
+user.email = "ana@example.com";
+user.age = 31;
+delete user.email;
+
+// Check existence
+"name" in user;              // true
+user.hasOwnProperty("name"); // true (own property only)
+Object.hasOwn(user, "name"); // modern equivalent
 ```
 
 ---
 
 ### Arrays
 
-Lista ordenada con índices numéricos; objeto especializado con **`.length`** y métodos de iteración. Primer índice: **0**.
-
-**Ejemplo**
-
 ```js
-const nums = [10, 20, 30];
-nums[0]; // 10
-nums.push(40);
+const nums = [10, 20, 30, 40];
+
+nums[0];        // 10
+nums.length;    // 4
+nums.at(-1);    // 40 — last element (modern)
+
+// Mutating methods
+nums.push(50);       // add to end
+nums.pop();          // remove from end
+nums.unshift(0);     // add to start
+nums.shift();        // remove from start
+nums.splice(1, 2);   // remove 2 elements at index 1
+
+// Non-mutating methods
+nums.slice(1, 3);    // new array [20, 30]
+nums.concat([50]);   // new array with 50 appended
+[...nums, 50];       // same with spread
 ```
 
 ---
 
 ### Destructuring
 
-Sintaxis para **extraer** valores de arrays u objetos en variables enlazadas.
-
-- Soporta **valores por defecto** y **renombrado** en objetos (`{ edad: años }`).
-
-**Ejemplo**
-
 ```js
-const arr = [1, 2, 3];
-const [a, b] = arr;
+// Array destructuring
+const [first, second, , fourth] = [1, 2, 3, 4];
+const [head, ...tail] = [1, 2, 3, 4]; // head=1, tail=[2,3,4]
 
-const user = { name: "Luis", edad: 25 };
-const { name, edad: años } = user;
+// Object destructuring
+const { name, age } = { name: "Ana", age: 30 };
 
-const [x = 0] = [];
-const { nick = "guest" } = {};
+// Rename while destructuring
+const { name: userName } = { name: "Ana" };
+console.log(userName); // "Ana"
+
+// Default values
+const { role = "user" } = {}; // role = "user"
+
+// Nested
+const { address: { city } } = { address: { city: "Madrid" } };
+
+// In function parameters
+function display({ name, age = 0 }) {
+  return `${name} is ${age}`;
+}
 ```
 
 ---
 
 ### Spread / Rest
 
-- **Spread (`...`)**: **expande** un iterable u objeto (según contexto: literal de array, argumentos, literal de objeto).
-- **Rest (`...args`)**: **agrupa** el resto en un array (rest parameters o rest en destructuring).
-
-**Ejemplo**
-
 ```js
-const copia = [...[1, 2], 3];
-function suma(...nums) {
-  return nums.reduce((a, b) => a + b, 0);
+// Spread: expand an iterable into individual items
+const a = [1, 2];
+const b = [3, 4];
+const combined = [...a, ...b]; // [1, 2, 3, 4]
+
+// Clone an array (shallow)
+const copy = [...original];
+
+// Spread into object
+const base = { theme: "dark" };
+const extended = { ...base, lang: "en" }; // { theme: "dark", lang: "en" }
+
+// Rest: collect remaining items
+function sum(first, ...rest) {
+  return rest.reduce((acc, n) => acc + n, first);
 }
-const [primero, ...resto] = [1, 2, 3, 4];
+sum(1, 2, 3, 4); // 10
 ```
 
 ---
 
-### Métodos de arrays (`map`, `filter`, `reduce`, `forEach`)
+### Array methods (`map`, `filter`, `reduce`, `forEach`)
 
-- **`forEach`**: ejecuta una función por elemento; **no** devuelve un array útil (devuelve `undefined`); **no** equivale a `for` con `break`/`continue` de la misma forma.
-- **`map`**: nuevo array de la **misma longitud**, transformando cada elemento.
-- **`filter`**: nuevo array solo con elementos que **cumplen** la condición.
-- **`reduce`**: reduce a **un valor** acumulando (acumulador e índice opcionales).
-
-**Ejemplo**
+All four accept a callback. None of them mutate the original array.
 
 ```js
-const n = [1, 2, 3];
-n.forEach((x) => console.log(x));
-const doble = n.map((x) => x * 2);
-const pares = n.filter((x) => x % 2 === 0);
-const total = n.reduce((acc, x) => acc + x, 0);
+const products = [
+  { name: "Coffee", price: 3, inStock: true },
+  { name: "Tea",    price: 2, inStock: false },
+  { name: "Juice",  price: 4, inStock: true },
+];
+
+// map — transform every element, returns same-length array
+const names = products.map(p => p.name);
+// ["Coffee", "Tea", "Juice"]
+
+// filter — keep elements matching the condition
+const available = products.filter(p => p.inStock);
+// [{ name: "Coffee"... }, { name: "Juice"... }]
+
+// reduce — accumulate to a single value
+const total = products.reduce((sum, p) => sum + p.price, 0);
+// 9
+
+// forEach — side effects only; returns undefined
+products.forEach(p => console.log(p.name));
+
+// Chaining
+const availableTotal = products
+  .filter(p => p.inStock)
+  .reduce((sum, p) => sum + p.price, 0); // 7
 ```
-
-**Errores comunes**
-
-- Esperar un array nuevo de `forEach` o poder “cortar” la iteración como en un `for` clásico.
 
 ---
 
-### Métodos de objetos (`Object.keys`, `Object.values`, etc.)
-
-- **`Object.keys(obj)`**: array de claves **enumerables propias**.
-- **`Object.values(obj)`**: valores de esas propiedades.
-- **`Object.entries(obj)`**: pares `[clave, valor]`.
-- Otras utilidades según necesidad: **`Object.assign`**, **`Object.freeze` / `seal` / `preventExtensions`**, **`Object.hasOwn`**, **`Object.fromEntries`**, etc.
-
-**Ejemplo**
+### Object methods
 
 ```js
-const o = { a: 1, b: 2 };
-Object.keys(o); // ["a","b"]
-Object.values(o); // [1,2]
-Object.entries(o); // [["a",1],["b",2]]
-Object.fromEntries([
-  ["x", 10],
-  ["y", 20],
-]);
+const scores = { alice: 90, bob: 75, carol: 88 };
+
+Object.keys(scores);    // ["alice", "bob", "carol"]
+Object.values(scores);  // [90, 75, 88]
+Object.entries(scores); // [["alice", 90], ["bob", 75], ["carol", 88]]
+
+// Rebuild from entries (useful after transforming entries)
+const boosted = Object.fromEntries(
+  Object.entries(scores).map(([k, v]) => [k, v + 5])
+);
+// { alice: 95, bob: 80, carol: 93 }
+
+// Merge objects
+const defaults = { theme: "light", lang: "en" };
+const userPrefs = { theme: "dark" };
+const config = Object.assign({}, defaults, userPrefs);
+// { theme: "dark", lang: "en" }
+
+// Same with spread (preferred)
+const config2 = { ...defaults, ...userPrefs };
 ```
 
 ---
 
-## ASINCRONÍA
+## Async
 
 ### Callbacks
 
-Funciones pasadas para ejecutarse **más tarde** (I/O, temporizadores, etc.). Muchos niveles anidados producen **callback hell** (código difícil de leer y mantener).
-
-**Ejemplo**
+A callback is a function passed as an argument to be called later — the original async pattern.
 
 ```js
-setTimeout(() => console.log("más tarde"), 1000);
+// Simple callback
+setTimeout(() => console.log("1 second later"), 1000);
 
-function leerArchivo(ruta, callback) {
-  // simulación: al terminar llama callback(err, data)
-  callback(null, "contenido");
+// Node-style: error-first callbacks
+function readFile(path, callback) {
+  // on success:  callback(null, data)
+  // on failure:  callback(error, null)
 }
+
+readFile("data.json", (err, data) => {
+  if (err) return console.error(err);
+  console.log(data);
+});
+```
+
+The problem: **callback hell** — deeply nested callbacks become hard to read and maintain.
+
+```js
+// Callback hell
+getUser(id, (user) => {
+  getOrders(user, (orders) => {
+    getItems(orders[0], (items) => {
+      // ... impossible to follow
+    });
+  });
+});
 ```
 
 ---
 
 ### Promises
 
-Representan un valor **futuro**. Estados: **pending**, **fulfilled**, **rejected**. Encadenamiento con **`.then` / `.catch` / `.finally`**; un `then` puede devolver otra promesa para secuencias.
-
-**Ejemplo**
+A Promise represents a value that will be available in the future. It is in one of three states: `pending`, `fulfilled`, or `rejected`.
 
 ```js
-const p = new Promise((resolve, reject) => {
-  resolve(42);
-});
-p.then((v) => v * 2)
-  .then(console.log)
-  .catch(console.error);
+const fetchUser = (id) =>
+  new Promise((resolve, reject) => {
+    if (id > 0) resolve({ id, name: "Ana" });
+    else reject(new Error("Invalid ID"));
+  });
+
+// Consuming with .then / .catch / .finally
+fetchUser(1)
+  .then(user => user.name)
+  .then(name => console.log(name))  // "Ana"
+  .catch(err => console.error(err)) // any error in the chain lands here
+  .finally(() => console.log("done")); // runs regardless of outcome
+
+// Chaining: each .then can return a new promise
+fetchUser(1)
+  .then(user => fetchOrders(user.id)) // returns another promise
+  .then(orders => console.log(orders))
+  .catch(err => console.error(err));
 ```
 
 ---
 
 ### `async` / `await`
 
-- **`async`**: la función **siempre** devuelve una **promesa**.
-- **`await`**: pausa la función `async` hasta la resolución de la promesa **sin bloquear el hilo principal** (el trabajo continúa vía **microtareas** y el event loop).
-
-**Ejemplo**
+`async/await` is syntactic sugar over Promises — it makes async code read like synchronous code.
 
 ```js
-async function cargar() {
-  const res = await Promise.resolve("ok");
-  return res;
+async function loadDashboard(userId) {
+  const user   = await fetchUser(userId);    // waits for the promise
+  const orders = await fetchOrders(user.id); // then waits for this one
+  const stats  = await fetchStats(user.id);
+
+  return { user, orders, stats };
 }
-cargar().then(console.log);
+
+// An async function always returns a promise
+loadDashboard(1).then(console.log);
+```
+
+**Important:** `await` pauses only the `async` function, not the whole thread. The event loop keeps running.
+
+```js
+// Run in parallel when operations are independent
+async function loadAll(userId) {
+  const [user, settings] = await Promise.all([
+    fetchUser(userId),
+    fetchSettings(userId),
+  ]);
+  return { user, settings };
+}
 ```
 
 ---
 
-### Manejo de errores (`try` / `catch`)
-
-- **`try`**: bloque a ejecutar.
-- **`catch`**: captura excepciones lanzadas.
-- **`finally`**: se ejecuta **siempre** (éxito o error).
-
-Con **`async`/`await`**, los rechazos de promesas se capturan con **`try`/`catch`** alrededor del **`await`**.
-
-**Ejemplo**
+### Error handling
 
 ```js
+// try/catch with async/await
+async function loadUser(id) {
+  try {
+    const user = await fetchUser(id);
+    const orders = await fetchOrders(user.id);
+    return { user, orders };
+  } catch (err) {
+    console.error("Failed to load:", err.message);
+    return null;
+  } finally {
+    console.log("request finished");
+  }
+}
+
+// Custom error types
+class NotFoundError extends Error {
+  constructor(resource) {
+    super(`${resource} not found`);
+    this.name = "NotFoundError";
+  }
+}
+
+async function getUser(id) {
+  const user = await db.find(id);
+  if (!user) throw new NotFoundError("User");
+  return user;
+}
+
+// Catch specific error types
 try {
-  JSON.parse("{");
-} catch (e) {
-  console.error("JSON inválido", e.message);
-} finally {
-  console.log("siempre");
+  const user = await getUser(99);
+} catch (err) {
+  if (err instanceof NotFoundError) {
+    showEmptyState();
+  } else {
+    reportToSentry(err);
+  }
 }
 ```
 
 ---
 
-### `Promise.all`
+### Promise combinators
 
-Recibe un **iterable de promesas**:
-
-- Si **todas** cumplen: resultado es un **array de valores** en **orden**.
-- Si **una** falla: rechazo con esa **razón** (no espera al resto para fallar).
-
-**Ejemplo**
+Use these when you need to coordinate multiple async operations.
 
 ```js
-Promise.all([Promise.resolve(1), Promise.resolve(2)]).then(console.log); // [1,2]
+const p1 = fetchUser(1);
+const p2 = fetchUser(2);
+const p3 = fetchUser(3);
+
+// Promise.all — all must succeed; fails fast on first rejection
+const [u1, u2, u3] = await Promise.all([p1, p2, p3]);
+
+// Promise.allSettled — waits for all regardless of success/failure
+const results = await Promise.allSettled([p1, p2, p3]);
+results.forEach(r => {
+  if (r.status === "fulfilled") console.log(r.value);
+  else console.error(r.reason);
+});
+
+// Promise.race — resolves/rejects with whichever settles first
+const timeout = new Promise((_, reject) =>
+  setTimeout(() => reject(new Error("Timeout")), 5000)
+);
+const data = await Promise.race([fetchUser(1), timeout]);
+
+// Promise.any — resolves with first success; rejects only if ALL fail
+const fastest = await Promise.any([p1, p2, p3]);
 ```
+
+| Combinator | Use when |
+|---|---|
+| `Promise.all` | All results needed, fail fast |
+| `Promise.allSettled` | All results needed, handle failures individually |
+| `Promise.race` | Want whichever finishes first (e.g. timeout pattern) |
+| `Promise.any` | Want first success, tolerate some failures |
 
 ---
 
-### `Promise.allSettled`
-
-Espera a que **todas** terminen (éxito o fallo). Devuelve un array de objetos `{ status, value | reason }`. **No** rechaza el agregado por un solo fallo.
-
-**Ejemplo**
-
-```js
-Promise.allSettled([
-  Promise.resolve("ok"),
-  Promise.reject(new Error("fallo")),
-]).then(console.log);
-```
-
----
-
-### `Promise.race`
-
-Se **resuelve** o **rechaza** con el **primer** settled entre las promesas dadas. Útil para **timeouts** o “la primera que responda”.
-
-**Ejemplo**
-
-```js
-const rápida = Promise.resolve("A");
-const lenta = new Promise((r) => setTimeout(() => r("B"), 1000));
-Promise.race([rápida, lenta]).then(console.log); // "A"
-```
-
----
-
-## DOM Y NAVEGADOR
+## DOM & Browser
 
 ### DOM manipulation
 
-El **DOM** es el árbol del documento HTML. Operaciones típicas:
-
-- **Seleccionar**: `querySelector`, `getElementById`, etc.
-- **Crear**: `createElement`
-- **Modificar**: texto, atributos, clases
-- **Insertar**: `appendChild`, `insertBefore`
-- **Eliminar** nodos
-
-**Ejemplo (navegador)**
-
 ```js
-const el = document.querySelector("#app");
-const p = document.createElement("p");
-p.textContent = "Hola";
-el?.appendChild(p);
+// Selecting elements
+const el   = document.querySelector("#app");       // first match
+const all  = document.querySelectorAll(".item");   // NodeList
+const byId = document.getElementById("title");
+
+// Reading / writing content
+el.textContent = "Hello";           // safe: escapes HTML
+el.innerHTML = "<strong>Hi</strong>"; // careful: XSS risk
+
+// Attributes and classes
+el.setAttribute("aria-label", "close");
+el.getAttribute("id");
+el.classList.add("active");
+el.classList.remove("hidden");
+el.classList.toggle("open");
+
+// Creating and inserting elements
+const card = document.createElement("div");
+card.className = "card";
+card.textContent = "New card";
+
+el.appendChild(card);           // append as last child
+el.prepend(card);               // first child
+el.before(card);                // before el in the DOM
+el.insertAdjacentHTML("beforeend", "<p>Fast insert</p>");
+
+// Removing
+card.remove();
 ```
 
 ---
 
 ### Event listeners
 
-- **`addEventListener(evento, handler, opciones)`**: registra el manejador.
-- **`removeEventListener`**: requiere la **misma referencia** de función que en `addEventListener`.
-
-**Opciones** (entre otras): `once`, `passive`, `capture`.
-
-**Ejemplo (navegador)**
-
 ```js
-const handler = () => console.log("click");
-document.body.addEventListener("click", handler);
-document.body.removeEventListener("click", handler);
+const button = document.querySelector("#submit");
+
+// Add
+button.addEventListener("click", handleClick);
+
+// Remove — must pass the same function reference
+button.removeEventListener("click", handleClick);
+
+// Options
+button.addEventListener("click", handleClick, {
+  once: true,    // auto-removes after first fire
+  passive: true, // tells browser you won't call preventDefault (scroll perf)
+  capture: true, // fire during capture phase instead of bubbling
+});
+
+// Event object
+function handleClick(event) {
+  event.preventDefault();  // block default behavior (form submit, link nav)
+  event.stopPropagation(); // stop bubbling up to parent elements
+  console.log(event.target);   // element that was clicked
+  console.log(event.currentTarget); // element the listener is attached to
+}
 ```
 
 ---
 
 ### Event bubbling / capturing
 
-Fases del evento en el DOM:
+When an event fires on an element, it travels in three phases:
 
-1. **Capturing**: de la raíz hacia el objetivo.
-2. **Target**: el elemento objetivo.
-3. **Bubbling**: del objetivo hacia la raíz.
+```
+1. Capturing  — window → document → html → body → ... → target
+2. Target     — the element that was clicked
+3. Bubbling   — target → ... → body → html → document → window
+```
 
-Por defecto los handlers suelen registrarse en fase **bubbling**; **`capture: true`** invierte el orden de ejecución en la fase de captura.
-
-**Ejemplo (navegador)** — HTML: `<div id="outer"><button id="inner"></button></div>`.
+```html
+<div id="outer">
+  <button id="inner">Click me</button>
+</div>
+```
 
 ```js
-document.getElementById("outer")?.addEventListener(
-  "click",
-  () => console.log("outer (bubbling)"),
-  false
-);
-document.getElementById("outer")?.addEventListener(
-  "click",
-  () => console.log("outer (capture)"),
-  true
-);
-// Al hacer clic en #inner: primero capture en outer, luego el botón, luego bubbling en outer
+document.getElementById("outer").addEventListener("click", () => {
+  console.log("outer bubbling"); // fires 2nd (default: bubbling)
+}, false);
+
+document.getElementById("outer").addEventListener("click", () => {
+  console.log("outer capturing"); // fires 1st (capture phase)
+}, true);
+
+document.getElementById("inner").addEventListener("click", () => {
+  console.log("inner"); // fires between the two
+});
+
+// Click: outer capturing → inner → outer bubbling
+```
+
+**Event delegation** — attach one listener to a parent instead of many to children:
+
+```js
+document.querySelector("#list").addEventListener("click", (e) => {
+  if (e.target.matches("li")) {
+    console.log("clicked item:", e.target.textContent);
+  }
+});
 ```
 
 ---
 
 ### Fetch API
 
-API **basada en promesas** para HTTP: `fetch(url, options)`.
-
-- La **respuesta** hay que **consumir** con `.json()`, `.text()`, etc.
-- Los **códigos HTTP de error** (4xx, 5xx) **no** rechazan la promesa por defecto: comprueba **`response.ok`** (o el status) explícitamente.
-
-**Ejemplo (navegador)**
-
 ```js
-fetch("https://api.example.com/data")
-  .then((res) => {
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
-  })
-  .then(console.log)
-  .catch(console.error);
+// Basic GET
+const res = await fetch("https://api.example.com/users");
+
+// fetch does NOT reject on 4xx/5xx — always check res.ok
+if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+const users = await res.json();
+
+// POST with JSON body
+const newUser = await fetch("https://api.example.com/users", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ name: "Ana", role: "admin" }),
+}).then(r => r.json());
+
+// Full example with error handling
+async function api(url, options = {}) {
+  const res = await fetch(url, options);
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.message ?? `HTTP ${res.status}`);
+  }
+  return res.json();
+}
 ```
-
-**Errores comunes**
-
-- Asumir que `fetch` rechaza en 404/500; solo falla en problemas de red u otros errores de fetch.
 
 ---
 
-### `LocalStorage` / `SessionStorage`
-
-Almacenamiento **clave-valor** en el navegador (**solo strings**).
-
-- **`localStorage`**: persiste entre sesiones (mismo origen).
-- **`sessionStorage`**: por **pestaña** hasta cerrarla.
-
-Misma **API**; tamaño limitado; aislado por **origen** (*same-origin policy*).
-
-**Ejemplo (navegador)**
+### Web Storage
 
 ```js
+// localStorage — persists across sessions (same origin)
 localStorage.setItem("theme", "dark");
-const theme = localStorage.getItem("theme");
-sessionStorage.setItem("tabId", "123");
+localStorage.getItem("theme");  // "dark"
+localStorage.removeItem("theme");
+localStorage.clear();
+
+// sessionStorage — cleared when the tab closes
+sessionStorage.setItem("tabId", crypto.randomUUID());
+
+// Both only store strings — serialize objects with JSON
+const prefs = { theme: "dark", lang: "en" };
+localStorage.setItem("prefs", JSON.stringify(prefs));
+const stored = JSON.parse(localStorage.getItem("prefs"));
+
+// Utility wrapper to avoid repetition
+const storage = {
+  get: (key) => JSON.parse(localStorage.getItem(key)),
+  set: (key, value) => localStorage.setItem(key, JSON.stringify(value)),
+  del: (key) => localStorage.removeItem(key),
+};
 ```
+
+| | `localStorage` | `sessionStorage` |
+|---|---|---|
+| Lifetime | Until cleared | Until tab closes |
+| Scope | Same origin | Same tab + origin |
+| Capacity | ~5 MB | ~5 MB |
 
 ---
 
-## JAVASCRIPT AVANZADO
+## Advanced
 
 ### `this`
 
-El valor de **`this`** no depende de **dónde** se define la función, sino de **cómo** se llama (invoca).
-
-👉 **Regla principal:**
-
-`this` se determina en **tiempo de ejecución** según la forma de invocación.
-
-🧭 **Casos principales**
-
-**1. 🧱 Método de objeto**
-
-Cuando una función se llama como método de un objeto:
+`this` is determined by **how a function is called**, not where it is defined.
 
 ```js
-const obj = {
-  x: 10,
-  getX() {
-    return this.x;
-  },
-};
-
+// Method call — this = the object
+const obj = { x: 10, getX() { return this.x; } };
 obj.getX(); // 10
-```
 
-- ✔ `this` → el objeto (`obj`)
+// Plain call — this = undefined (strict) or global
+function show() { return this; }
+show(); // undefined in strict mode
 
-**2. 🌍 Función suelta (no estricta)**
+// call / apply / bind — explicit this
+function greet() { return `Hi, ${this.name}`; }
+const person = { name: "Jochy" };
+greet.call(person);  // "Hi, Jochy"
+greet.apply(person); // "Hi, Jochy"
+const greetJochy = greet.bind(person);
+greetJochy();        // "Hi, Jochy"
 
-```js
-function mostrarThis() {
-  return this;
-}
+// new — this = the new instance
+function User(name) { this.name = name; }
+const u = new User("Ana"); // u.name = "Ana"
 
-mostrarThis(); // window (en navegador)
-```
-
-- ✔ `this` → objeto global (`window` en navegador)
-
-**3. ⚠️ Función suelta en modo estricto**
-
-```js
-"use strict";
-
-function mostrarThis() {
-  return this;
-}
-
-mostrarThis(); // undefined
-```
-
-- ✔ `this` → `undefined`
-- 👉 Más seguro, evita errores silenciosos
-
-**4. 🎯 `call`, `apply`, `bind` (`this` explícito)**
-
-```js
-function saludar() {
-  return `Hola ${this.nombre}`;
-}
-
-const persona = { nombre: "Jochy" };
-
-saludar.call(persona); // "Hola Jochy"
-saludar.apply(persona); // "Hola Jochy"
-
-const nueva = saludar.bind(persona);
-nueva(); // "Hola Jochy"
-```
-
-- ✔ `this` → lo que tú definas manualmente
-
-**5. 🆕 Con `new` (constructor)**
-
-```js
-function Persona(nombre) {
-  this.nombre = nombre;
-}
-
-const p = new Persona("Jochy");
-p.nombre; // "Jochy"
-```
-
-- ✔ `this` → nueva instancia creada
-
-**6. 🏹 Arrow functions (`this` léxico)**
-
-Las arrow functions **no** tienen su propio `this`.
-
-Toman el `this` del contexto donde fueron **creadas**.
-
-```js
-const obj = {
-  x: 10,
-  regular() {
-    return this.x;
-  },
-  arrow: () => this?.x,
-};
-
-obj.regular(); // 10
-obj.arrow(); // undefined (depende del contexto exterior)
-```
-
-- 👉 `this` en arrow **no** es `obj`, sino el exterior (ej: `window` o `undefined`)
-
-**7. 🔄 Método extraído (cambio de contexto)**
-
-```js
-const obj = {
-  x: 5,
-  getX() {
-    return this.x;
+// Arrow functions — lexical this (from outer scope, never own)
+const timer = {
+  label: "work",
+  start() {
+    setTimeout(() => console.log(this.label), 1000); // "work" — arrow captures outer this
   },
 };
-
-const fn = obj.getX;
-fn(); // undefined o window.x
 ```
 
-- ❌ Se pierde el contexto
-- 👉 ya no se llama como método de `obj`
-
-**8. 🧠 Solución: `bind` para mantener `this`**
-
-```js
-const obj = {
-  x: 5,
-  getX() {
-    return this.x;
-  },
-};
-
-const fn = obj.getX.bind(obj);
-fn(); // 5
-```
-
-- ✔ `this` queda fijado correctamente
-
-🎯 **Resumen rápido**
-
-| Cómo se llama | Valor de `this` |
-| ------------- | --------------- |
-| `obj.metodo()` | `obj` |
-| función normal | `window` / `undefined` (strict) |
-| `call`/`apply`/`bind` | el que tú pases |
-| `new` | nueva instancia |
-| arrow function | `this` del entorno |
-| método extraído | se pierde el contexto |
+| How called | `this` value |
+|---|---|
+| `obj.method()` | `obj` |
+| `fn()` | `undefined` (strict) / global |
+| `fn.call(x)` | `x` |
+| `new Fn()` | new instance |
+| Arrow function | outer `this` |
 
 ---
 
-### Prototipos en JavaScript
+### Prototypes
 
-En JavaScript, los objetos pueden **heredar** propiedades y métodos de otros objetos a través de algo llamado **prototipo**.
-
-👉 Cada objeto tiene un **enlace interno** a otro objeto, llamado su **prototipo**.
-
-🧭 **¿Cómo funciona?**
-
-Cuando accedes a una propiedad:
-
-1. JavaScript la busca en el **objeto actual**.
-2. Si no la encuentra → la busca en su **prototipo**.
-3. Si no está → sigue **subiendo** en la **cadena de prototipos**.
-4. Hasta llegar a **`null`**.
-
-👉 A esto se le llama **prototype chain** (cadena de prototipos).
-
-✅ **Ejemplo básico**
+Every object has an internal link (`[[Prototype]]`) to another object. Property lookups walk this chain until they find the property or reach `null`.
 
 ```js
-const padre = {
-  saluda() {
-    return "hola";
-  },
+const animal = {
+  breathe() { return "breathing"; },
 };
 
-const hijo = Object.create(padre);
+const dog = Object.create(animal);
+dog.bark = function() { return "woof"; };
 
-hijo.saluda(); // "hola"
+dog.bark();    // "woof"   — own property
+dog.breathe(); // "breathing" — found on prototype
+
+Object.getPrototypeOf(dog) === animal; // true
 ```
 
-- ✔ `hijo` no tiene `saluda`
-- ✔ JavaScript lo busca en su prototipo (`padre`)
+**Chain example:**
 
-🔍 **Ver el prototipo**
-
-```js
-Object.getPrototypeOf(hijo) === padre; // true
+```
+dog → animal → Object.prototype → null
 ```
 
-🧱 **Funciones constructoras y `.prototype`**
+```js
+dog.toString(); // works — found on Object.prototype
+```
 
-Las funciones en JavaScript tienen una propiedad llamada **`.prototype`**, que se usa cuando creas objetos con **`new`**.
+**Function constructors and `.prototype`:**
 
 ```js
-function Persona(nombre) {
-  this.nombre = nombre;
+function Person(name) {
+  this.name = name;
 }
 
-Persona.prototype.saludar = function () {
-  return `Hola, soy ${this.nombre}`;
+Person.prototype.greet = function() {
+  return `Hi, I'm ${this.name}`;
 };
 
-const p = new Persona("Jochy");
+const p = new Person("Ana");
+p.greet(); // "Hi, I'm Ana"
 
-p.saludar(); // "Hola, soy Jochy"
+// p's chain: p → Person.prototype → Object.prototype → null
 ```
 
-- ✔ `p` hereda `saludar` desde `Persona.prototype`
-- ✔ No se copia el método: se **comparte**
-
-🔗 **Cadena de prototipos (ejemplo visual)**
-
-```js
-const abuelo = { a: 1 };
-const padre = Object.create(abuelo);
-const hijo = Object.create(padre);
-
-hijo.a; // 1
-```
-
-🔎 **Búsqueda:** `hijo` ❌ → `padre` ❌ → `abuelo` ✅
-
-⚠️ **Sobrescritura (override)**
-
-Si defines una propiedad en el objeto hijo, **tapa** la del prototipo al leer desde el hijo:
-
-```js
-const padre = { x: 1 };
-const hijo = Object.create(padre);
-
-hijo.x = 10;
-
-hijo.x; // 10
-padre.x; // 1
-```
-
-🎯 **¿Por qué es importante?**
-
-- 🔁 Permite **reutilizar** código sin duplicarlo
-- ⚡ Mejora el **rendimiento** (los métodos se comparten)
-- 🧩 Es la base de la **herencia** en JavaScript
-- 🧠 Fundamental para entender **`class`** (azúcar sintáctico sobre prototipos)
-
-🧠 **Regla fácil de recordar**
-
-Si un objeto **no tiene** algo… lo busca en su **padre** (prototipo).
-
-📊 **Resumen**
-
-| Concepto | Explicación |
-| -------- | ----------- |
-| Prototipo | Objeto del que otro hereda |
-| `Object.create()` | Crea un objeto con un prototipo dado |
-| `.prototype` | Usado por funciones constructoras con `new` |
-| Cadena de prototipos | Búsqueda hacia arriba hasta `null` |
-| Override | El hijo puede sobrescribir |
+> Methods on `.prototype` are **shared** across all instances — not copied. This saves memory.
 
 ---
 
-### Herencia prototipal
-
-Reutilización por **delegación**: un objeto delega en su prototipo. La sintaxis **`extends`** en clases es **azúcar** sobre esta mecánica.
-
-**Ejemplo**
+### Prototypal inheritance
 
 ```js
-const animal = { tipo: "animal" };
-const perro = Object.create(animal);
-perro.ladra = () => "guau";
-perro.tipo; // hereda por la cadena de prototipos
+const vehicle = {
+  start() { return `${this.type} starting`; },
+};
+
+const car = Object.create(vehicle);
+car.type = "car";
+car.honk = function() { return "beep"; };
+
+car.start(); // "car starting" — delegated to vehicle
+car.honk();  // "beep" — own method
 ```
+
+`extends` in classes is syntactic sugar over this same prototype chain.
 
 ---
 
-### Clases (`class`)
+### Classes
 
-Sintaxis declarativa para constructores y métodos. **No** introduce un modelo de herencia distinto del **prototipal**. Los métodos de instancia típicos van en el **prototipo**; los **campos de clase** pueden declararse en el cuerpo de la clase.
-
-**Ejemplo**
+Classes are a clean syntax on top of JavaScript's prototype system. They do not introduce a different inheritance model.
 
 ```js
-class User {
-  constructor(name) {
+class Animal {
+  #sound; // private field
+
+  constructor(name, sound) {
     this.name = name;
+    this.#sound = sound;
   }
-  greet() {
-    return `Hola, ${this.name}`;
+
+  speak() {
+    return `${this.name} says ${this.#sound}`;
+  }
+
+  static create(name, sound) { // factory helper
+    return new Animal(name, sound);
   }
 }
-new User("Ana").greet();
+
+class Dog extends Animal {
+  constructor(name) {
+    super(name, "woof");
+  }
+
+  fetch(item) {
+    return `${this.name} fetches the ${item}`;
+  }
+}
+
+const rex = new Dog("Rex");
+rex.speak();       // "Rex says woof"
+rex.fetch("ball"); // "Rex fetches the ball"
+rex instanceof Dog;    // true
+rex instanceof Animal; // true
 ```
 
 ---
 
-### Encapsulación
+### Encapsulation
 
-Ocultar detalles internos y exponer una API estable. En JS moderno:
-
-- **Campos privados** `#privado`
-- **Módulos ES**
-- **Closures**
-- Convenciones con **`_`** (no enforcement del lenguaje)
-
-**Ejemplo**
+Hiding internal state and exposing only a controlled API.
 
 ```js
-class Cuenta {
-  #saldo = 0;
-  depositar(n) {
-    this.#saldo += n;
+// Private class fields (modern — preferred)
+class BankAccount {
+  #balance = 0;
+  #owner;
+
+  constructor(owner, initial = 0) {
+    this.#owner = owner;
+    this.#balance = initial;
   }
-  ver() {
-    return this.#saldo;
+
+  deposit(amount) {
+    if (amount <= 0) throw new Error("Amount must be positive");
+    this.#balance += amount;
+    return this;
   }
+
+  withdraw(amount) {
+    if (amount > this.#balance) throw new Error("Insufficient funds");
+    this.#balance -= amount;
+    return this;
+  }
+
+  get balance() { return this.#balance; }
+  get owner()   { return this.#owner; }
 }
+
+const account = new BankAccount("Ana", 100);
+account.deposit(50).withdraw(30); // chaining
+account.balance; // 120
+account.#balance; // SyntaxError — truly private
 ```
 
 ---
 
-### Inmutabilidad
+### Immutability
 
-Evitar **mutar** datos compartidos; producir **nuevas** estructuras (`spread`, `slice`, etc.). Facilita el razonamiento sobre el estado y puede ayudar a optimizaciones en algunos entornos.
-
-**Ejemplo**
+Immutability means never modifying existing data — instead, produce new structures with the changes applied.
 
 ```js
-const estado = { items: [1, 2] };
-const nuevo = { ...estado, items: [...estado.items, 3] };
+// Mutable (bad practice for shared state)
+const state = { count: 0, items: [] };
+state.count++;          // mutates original
+state.items.push("x");  // mutates original
+
+// Immutable (predictable, easier to debug)
+const next = {
+  ...state,
+  count: state.count + 1,
+  items: [...state.items, "x"],
+};
+
+// Array operations without mutation
+const nums = [1, 2, 3, 4, 5];
+
+const added   = [...nums, 6];              // add
+const removed = nums.filter(n => n !== 3); // remove
+const updated = nums.map(n => n === 2 ? 99 : n); // update one item
+
+// Deep freeze
+function deepFreeze(obj) {
+  Object.getOwnPropertyNames(obj).forEach(key => {
+    if (typeof obj[key] === "object" && obj[key] !== null) {
+      deepFreeze(obj[key]);
+    }
+  });
+  return Object.freeze(obj);
+}
 ```
 
 ---
 
 ### Currying
 
-**¿Qué es currying?** Es convertir una función que recibe **varios argumentos a la vez** en una **serie de funciones** que reciben **un argumento a la vez**.
-
-👉 **En lugar de esto:**
+Currying transforms a multi-argument function into a series of single-argument functions.
 
 ```js
-function suma(a, b) {
-  return a + b;
-}
+// Normal
+function add(a, b) { return a + b; }
+add(2, 3); // 5
+
+// Curried
+const add = a => b => a + b;
+add(2)(3); // 5
+
+const add10 = add(10); // partially applied — returns b => 10 + b
+add10(5);  // 15
+add10(20); // 30
 ```
 
-👉 **Haces esto:**
+**Real-world use:**
 
 ```js
-const suma = (a) => (b) => a + b;
+// Curried validator
+const validate = regex => message => value =>
+  regex.test(value) ? null : message;
+
+const required  = validate(/.+/)("Field is required");
+const isEmail   = validate(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)("Invalid email");
+const minLength = n => validate(new RegExp(`.{${n},}`))(`Min ${n} characters`);
+
+required("");         // "Field is required"
+required("Ana");      // null
+isEmail("not-email"); // "Invalid email"
+isEmail("a@b.com");   // null
+minLength(8)("hi");   // "Min 8 characters"
 ```
-
-**¿Qué pasa con `suma(10)`?**
-
-- No devuelve un número.
-- Devuelve **otra función**.
 
 ```js
-const masDiez = suma(10);
-// masDiez es equivalente a: (b) => 10 + b
+// Curried API call factory
+const request = method => url => body =>
+  fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 
-masDiez(5); // 15  → internamente: 10 + 5
+const post = request("POST");
+const put  = request("PUT");
+
+const createUser = post("/api/users");
+const updateUser = id => put(`/api/users/${id}`);
+
+createUser({ name: "Ana" });
+updateUser(1)({ name: "Ana Updated" });
 ```
-
-🎯 **Idea clave:** guardar un valor **ahora** y usarlo **después** (*partial application*).
-
-**Ejemplo útil — reutilizar lógica con un valor fijo:**
-
-```js
-const aplicarDescuento = (descuento) => (precio) =>
-  precio - precio * descuento;
-
-const descuento20 = aplicarDescuento(0.2);
-
-descuento20(100); // 80
-descuento20(200); // 160
-```
-
-🧱 **Por qué sirve:** reutilización, código más flexible, aplicar argumentos poco a poco, muy usado en estilo funcional (React, librerías FP).
-
-⚠️ **Regla fácil:** cada función recibe **un solo argumento** y devuelve otra función hasta “terminar”.
-
-🧠 **Mini resumen:** normal `f(a, b)` → currying `f(a)(b)`; divide la ejecución en pasos.
 
 ---
 
-### Funciones puras
+### Pure functions
 
-Una **función pura** es una función que se comporta de forma **totalmente predecible**.
-
-Cumple **dos reglas principales**:
-
-**1. Determinismo**
-
-Si le das los mismos argumentos, **siempre** devuelve el mismo resultado.
-
-- misma entrada → misma salida
-
-**2. Sin efectos secundarios**
-
-No modifica nada fuera de ella ni depende de cosas externas (para calcular su resultado).
-
-⚠️ **¿Qué se considera un efecto secundario?**
-
-En programación funcional, una función deja de ser pura si:
-
-- 🔄 Modifica variables externas (estado global o compartido)
-- 🌐 Hace peticiones (API, base de datos, etc.)
-- 📂 Lee o escribe archivos
-- 🖥️ Manipula el DOM
-- 🖨️ Imprime en consola (`console.log`)
-- ⏰ Depende del tiempo (`Date`, reloj del sistema)
-
-*(En proyectos reales muchas funciones son intencionalmente impuras; lo importante es **saber** cuándo lo son y aislarlas.)*
-
-✅ **Ejemplo de función pura**
+A pure function always produces the same output for the same input and causes no side effects.
 
 ```js
-function cuadrado(n) {
-  return n * n;
+// Pure — deterministic, no side effects
+function formatPrice(amount, currency = "USD") {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+  }).format(amount);
+}
+
+formatPrice(9.99); // "$9.99" — always the same
+
+// Impure — depends on external state
+let tax = 0.1;
+function addTax(price) {
+  return price + price * tax; // depends on external variable
+}
+
+// Made pure — takes all inputs as arguments
+function addTax(price, taxRate) {
+  return price + price * taxRate;
 }
 ```
 
-- ✔ Siempre devuelve lo mismo para el mismo `n`
-- ✔ No usa variables externas
-- ✔ No modifica nada fuera
-
-❌ **Ejemplo de función impura**
+**Why purity matters:**
 
 ```js
-let contador = 0;
+// Pure functions compose cleanly
+const pipe = (...fns) => x => fns.reduce((v, f) => f(v), x);
 
-function incrementar() {
-  contador++;
-}
+const processPrice = pipe(
+  price => price * 1.1,        // add tax
+  price => Math.round(price),  // round
+  price => `$${price}`,        // format
+);
+
+processPrice(9.99); // "$11"
 ```
 
-- ❌ Modifica una variable externa
-- ❌ Depende del estado previo
-
-⚖️ **Otro ejemplo claro**
-
-✔ **Pura**
-
-```js
-function suma(a, b) {
-  return a + b;
-}
-```
-
-👉 `suma(2, 3)` siempre será `5`.
-
-❌ **Impura**
-
-```js
-function obtenerHora() {
-  return new Date();
-}
-```
-
-- ❌ Depende del tiempo (estado externo)
-- ❌ Cada llamada puede devolver algo diferente
-
-🎯 **¿Por qué son importantes?**
-
-- 🧪 Más fáciles de testear (no necesitas mocks ni estado global)
-- 🔍 Más fáciles de entender
-- 🔁 Más reutilizables
-- 🐛 Menos bugs inesperados
-- 🧩 Ideales para componer funciones
-
-🧠 **Regla fácil de recordar**
-
-Piensa en una **calculadora**: le das números → te da un resultado → no cambia nada más.
-
-📊 **Resumen rápido**
-
-| Función pura | Función impura |
-| ------------ | -------------- |
-| Solo usa sus argumentos | Usa estado externo |
-| Misma entrada → misma salida | Puede cambiar el resultado |
-| Sin efectos secundarios | Tiene efectos secundarios |
+| Pure | Impure |
+|---|---|
+| Same input → same output always | May return different results |
+| No side effects | Modifies external state |
+| Easy to test (no mocks needed) | Requires setup/teardown in tests |
+| Safe to run in any order | Order-dependent |
+| Composable | Hard to compose reliably |
 
 ---
 
-*Última revisión conceptual: referencia de estudio; contrasta siempre con la documentación oficial ([MDN](https://developer.mozilla.org/), [ECMAScript](https://tc39.es/ecma262/)) para detalles de versión y compatibilidad.*
+*For the authoritative reference, always consult [MDN Web Docs](https://developer.mozilla.org/) and the [ECMAScript specification](https://tc39.es/ecma262/).*
