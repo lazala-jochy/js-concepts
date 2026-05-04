@@ -503,6 +503,8 @@ export default Form;
 
 `useEffect` permite realizar **efectos secundarios**: llamadas a APIs, suscripciones, manipulación del DOM, timers, etc.
 
+Se ejecuta después de que el componente se renderiza y puede volver a ejecutarse cuando cambian ciertas dependencias.
+
 ```jsx
 import { useState, useEffect } from 'react';
 
@@ -635,6 +637,10 @@ function Boton() {
 
 Alternativa a `useState` para lógica de estado compleja o con múltiples sub-valores.
 
+useReducer es un hook de React que se usa para manejar estado complejo mediante una función reductora.
+
+Funciona recibiendo el estado actual y una acción, y devuelve un nuevo estado. Es útil cuando la lógica de actualización del estado es más estructurada o depende de múltiples condiciones.
+
 ```jsx
 import { useReducer } from 'react';
 
@@ -683,6 +689,8 @@ function Contador() {
 Hooks de optimización para evitar cálculos o re-creaciones innecesarias.
 
 ### useMemo — memoriza un valor calculado
+useMemo es un hook de React que memoriza el resultado de un cálculo para evitar ejecutarlo nuevamente en cada render.
+Solo vuelve a calcular el valor cuando cambian sus dependencias.
 
 ```jsx
 import { useMemo, useState } from 'react';
@@ -708,6 +716,10 @@ function ListaFiltrada({ items }) {
 ```
 
 ### useCallback — memoriza una función
+
+useCallback es una función que memoriza otra función para evitar que se cree de nuevo en cada render.
+
+Solo cambia cuando cambian sus dependencias, lo que ayuda a mejorar el rendimiento y evitar renderizados innecesarios.
 
 ```jsx
 import { useCallback, useState } from 'react';
@@ -805,6 +817,10 @@ function Preferencias() {
 ## Composición de Componentes
 
 React favorece la **composición** sobre la herencia.
+
+La component composition es una forma de construir interfaces combinando componentes pequeños y reutilizables dentro de otros componentes.
+
+En lugar de heredar comportamiento, se basa en unir piezas para crear estructuras más complejas y flexibles.
 
 ```jsx
 // Patrón: Componente contenedor genérico
