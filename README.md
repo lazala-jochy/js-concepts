@@ -20,6 +20,10 @@ Repositorio de guías de estudio. Este documento funciona como índice central p
 - Documento: [conceptos/REACT_GUIDE.md](./conceptos/REACT_GUIDE.md)
 - Descripción: guía completa de conceptos y ejemplos
 
+### Interview Prep
+- Documento: [conceptos/interview_readme.md](./conceptos/interview_readme.md)
+- Descripción: guía de preguntas y respuestas para entrevistas
+
 ## Cómo mantener este índice
 
 Cuando agregues una guía nueva, crea un archivo con un nombre claro dentro de `conceptos/` (por ejemplo `conceptos/vue-conceptos.md`) y añádelo a este README apuntando a `./conceptos/nombre-del-archivo.md`.
