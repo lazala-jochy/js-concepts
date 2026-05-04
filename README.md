@@ -21,8 +21,9 @@ Repositorio de guías de estudio. Este documento funciona como índice central p
 - Descripción: guía completa de conceptos y ejemplos
 
 ### Interview Prep
-- Documento: [conceptos/interview_readme.md](./conceptos/interview_readme.md)
-- Descripción: guía de preguntas y respuestas para entrevistas
+- Guide: [Interview Prep README](./conceptos/interview_readme.md)
+- Focus: technical interview Q&A
+- Includes: Node.js question bank (40 Q&A)
 
 ## Cómo mantener este índice
 
