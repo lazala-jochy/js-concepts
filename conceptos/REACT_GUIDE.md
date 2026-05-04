@@ -178,6 +178,9 @@ Boton.defaultProps = {
 ```
 
 ### La prop especial `children`
+La prop `children prop` es una propiedad especial en React que representa el contenido que se coloca dentro de un componente cuando se utiliza.
+
+Permite que un componente envuelva y renderice elementos hijos de forma dinámica, sin necesidad de definirlos explícitamente dentro de su propia implementación.
 
 ```jsx
 function Contenedor({ children, titulo }) {
