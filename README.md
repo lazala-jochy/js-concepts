@@ -1,16 +1,17 @@
 # js-concepts
 
-Guías de conceptos para estudiar. La guía **JavaScript** está en **[js-conceptos.md](./js-conceptos.md)** y la de **Node.js** en **[nodejs-conceptos.md](./nodejs-conceptos.md)**.
+Repositorio de guías de estudio. Este documento funciona como índice central para acceder rápidamente a cada tema.
 
-## Índice del repositorio
+## Guías disponibles
 
-| Tema        | Documento                                                                 |
-| ----------- | ------------------------------------------------------------------------- |
-| JavaScript  | [js-conceptos.md](./js-conceptos.md) — guía completa                      |
-| Node.js     | [nodejs-conceptos.md](./nodejs-conceptos.md) — guía del entorno           |
+### JavaScript
+- Documento: [js-conceptos.md](./js-conceptos.md)
+- Descripción: guía completa
 
-Cuando agregues una guía nueva, crea un archivo con un nombre claro (por ejemplo `typescript-conceptos.md`) y añade una fila a la tabla apuntando a `./nombre-del-archivo.md`.
+### Node.js
+- Documento: [nodejs-conceptos.md](./nodejs-conceptos.md)
+- Descripción: guía del entorno
 
----
+## Cómo mantener este índice
 
-
+Cuando agregues una guía nueva, crea un archivo con un nombre claro (por ejemplo `typescript-conceptos.md`) y añádelo a este README apuntando a `./nombre-del-archivo.md`.
