@@ -203,7 +203,21 @@ function Contenedor({ children, titulo }) {
 
 ## State (useState)
 
-El **estado** es información que el componente gestiona internamente y que, al cambiar, provoca un re-render.
+`useState` es un hook de React que permite a un componente funcional crear y manejar estado interno, es decir, datos que pueden cambiar con el tiempo y provocar que el componente se vuelva a renderizar.
+
+Como funciona?
+
+`useState` funciona creando una variable de estado y una función para actualizarla.
+
+Internamente, React guarda ese estado entre renderizados. Cuando llamas a la función de actualización, React:
+
+*actualiza el valor
+
+*vuelve a ejecutar el componente
+
+*renderiza la UI con el nuevo estado
+
+Además, cada llamada a useState es independiente y mantiene su propio valor a lo largo del ciclo de vida del componente.
 
 ```jsx
 import { useState } from 'react';
