@@ -1,10 +1,17 @@
 # ⚛️ React — Guía Completa de Conceptos y Ejemplos
 
+<div align="center">
+
 > Una referencia práctica con los conceptos esenciales de React, ordenados de fundamentos a avanzado.
+
+</div>
 
 ---
 
 ## Tabla de Contenidos
+
+<details open>
+<summary><strong>Índice</strong> (24 secciones)</summary>
 
 1. [¿Qué es React?](#qué-es-react)
 2. [JSX](#jsx)
@@ -30,6 +37,8 @@
 22. [Patrones Avanzados](#patrones-avanzados)
 23. [Performance y Optimización](#performance-y-optimización)
 24. [Buenas Prácticas](#buenas-prácticas)
+
+</details>
 
 ---
 
@@ -57,6 +66,7 @@ const elemento = React.createElement('h1', { className: 'titulo' }, 'Hola, mundo
 ```
 
 **Reglas importantes de JSX:**
+
 ```jsx
 // ✅ Un solo elemento raíz (o Fragment)
 return (
@@ -178,6 +188,7 @@ Boton.defaultProps = {
 ```
 
 ### La prop especial `children`
+
 La prop `children prop` es una propiedad especial en React que representa el contenido que se coloca dentro de un componente cuando se utiliza.
 
 Permite que un componente envuelva y renderice elementos hijos de forma dinámica, sin necesidad de definirlos explícitamente dentro de su propia implementación.
@@ -470,7 +481,7 @@ function FormularioContacto() {
 }
 ```
 
-### Formulario no Controlado 
+### Formulario no Controlado
 
 Un formulario no controlado es cuando el valor del input no está en el estado de React, sino que lo maneja directamente el DOM. React solo accede al valor cuando lo necesita, normalmente usando referencias.
 
@@ -689,6 +700,7 @@ function Contador() {
 Hooks de optimización para evitar cálculos o re-creaciones innecesarias.
 
 ### useMemo — memoriza un valor calculado
+
 useMemo es un hook de React que memoriza el resultado de un cálculo para evitar ejecutarlo nuevamente en cada render.
 Solo vuelve a calcular el valor cuando cambian sus dependencias.
 
@@ -1208,6 +1220,9 @@ const Carrito = lazy(() => import('./Carrito'));
 El Virtual DOM es una representación en memoria del DOM real.
 
 React lo usa para comparar cambios (diffing) y actualizar solo las partes necesarias del DOM real, haciendo el renderizado más eficiente.
+
+---
+
 ## Buenas Prácticas
 
 ### Estructura de archivos recomendada
@@ -1279,4 +1294,8 @@ const [datos, setDatos] = useState(() => JSON.parse(localStorage.getItem('datos'
 
 ---
 
+<div align="center">
+
 *Generado con ❤️ | React 18+ | Actualizado 2025*
+
+</div>
