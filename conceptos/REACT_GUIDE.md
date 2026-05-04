@@ -1003,6 +1003,10 @@ function App() {
 
 Carga componentes de forma diferida para mejorar el rendimiento inicial.
 
+Lazy Loading en React es una técnica para cargar componentes solo cuando se necesitan, en lugar de cargarlos todos al inicio, lo que mejora el rendimiento.
+
+Suspense es una funcionalidad que permite mostrar un estado de carga (como un loader) mientras esos componentes se están cargando de forma diferida.
+
 ```jsx
 import { lazy, Suspense } from 'react';
 
@@ -1028,6 +1032,10 @@ function App() {
 
 Permiten renderizar un componente fuera del árbol del DOM de su padre, manteniendo el contexto de React.
 
+Los portals permiten renderizar un componente fuera de su jerarquía normal en el DOM.
+
+Es decir, aunque el componente pertenece a un árbol en React, su salida se monta en otro lugar del DOM, lo que es útil para elementos como modales o overlays.
+
 ```jsx
 import { createPortal } from 'react-dom';
 
@@ -1052,6 +1060,10 @@ function Tooltip({ texto, children }) {
 
 ### Higher-Order Component (HOC)
 
+Un Higher-Order Component es una función que recibe un componente y devuelve un nuevo componente con funcionalidad adicional.
+
+Se usa para reutilizar lógica sin modificar el componente original.
+
 ```jsx
 // Función que recibe un componente y devuelve uno mejorado
 function conAutenticacion(ComponenteProtegido) {
@@ -1070,6 +1082,10 @@ const PanelAdmin = conAutenticacion(PanelAdminBase);
 ```
 
 ### Render Props
+
+render props es una técnica donde un componente recibe una función como propiedad y la usa para decidir qué renderizar.
+
+Permite compartir lógica entre componentes de forma flexible sin acoplar la UI.
 
 ```jsx
 // El componente delega el renderizado al padre via prop
@@ -1090,6 +1106,10 @@ function MouseTracker({ render }) {
 ```
 
 ### Compound Components
+
+Los Compound Components son un patrón donde varios componentes trabajan juntos como un conjunto, compartiendo estado y comportamiento implícitamente.
+
+Permiten construir APIs más flexibles, donde el usuario del componente puede organizar la estructura libremente mientras los componentes internos siguen coordinados entre sí.
 
 ```jsx
 // Componentes que comparten estado implícitamente via contexto
@@ -1130,6 +1150,10 @@ Accordion.Item = AccordionItem;
 ## Performance y Optimización
 
 ### React.memo
+
+React.memo es una función que evita que un componente se vuelva a renderizar si sus props no han cambiado.
+
+Hace una comparación superficial de las props y solo actualiza el componente cuando detecta diferencias.
 
 ```jsx
 // Evita re-renders si las props no cambiaron
@@ -1179,6 +1203,11 @@ const Carrito = lazy(() => import('./Carrito'));
 
 ---
 
+### Virutal Dom
+
+El Virtual DOM es una representación en memoria del DOM real.
+
+React lo usa para comparar cambios (diffing) y actualizar solo las partes necesarias del DOM real, haciendo el renderizado más eficiente.
 ## Buenas Prácticas
 
 ### Estructura de archivos recomendada
