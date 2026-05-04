@@ -403,7 +403,7 @@ function EjemploEventos() {
 
 ### Formulario Controlado (recomendado)
 
-El valor del input está controlado por el estado de React.
+Un formulario controlado en React es cuando el valor del input está completamente manejado por el estado del componente. React es la fuente de verdad y decide qué valor tiene el input en todo momento.
 
 ```jsx
 import { useState } from 'react';
@@ -468,6 +468,33 @@ function FormularioContacto() {
     </form>
   );
 }
+```
+
+### Formulario no Controlado 
+
+Un formulario no controlado es cuando el valor del input no está en el estado de React, sino que lo maneja directamente el DOM. React solo accede al valor cuando lo necesita, normalmente usando referencias.
+
+```jsx
+  import { useRef } from "react";
+
+function Form() {
+  const inputRef = useRef();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log(inputRef.current.value);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="text" ref={inputRef} />
+      <button type="submit">Enviar</button>
+    </form>
+  );
+}
+
+export default Form;
+
 ```
 
 ---
